@@ -572,13 +572,17 @@ function getHolidayInfo(d){
 
 /* Office schedule: bi-weekly alternating. Office 1&4 = even week index, Office 2&3 = odd */
 function officeGroup(date){
-  const start=new Date(selectedYear,0,5);
   const w=date.getDay();
   if(w===0||w===6) return 0;
-  const diffDays=Math.floor((date-start)/(1000*60*60*24));
-  if(diffDays<0) return 0;
+  // Fixed anchor (Mon Jan 6 2025) so alternation continues across years
+  const start=new Date(2025,0,6);
+  // Normalize each date to its Monday to keep a whole week in the same group
+  const day=date.getDay();
+  const mondayOffset=(day===0?-6:1-day);
+  const monday=new Date(date.getFullYear(),date.getMonth(),date.getDate()+mondayOffset);
+  const diffDays=Math.floor((monday-start)/(1000*60*60*24));
   const wk=Math.floor(diffDays/7);
-  return (wk%2===0)?1:2; // 1 = Office 1&4, 2 = Office 2&3
+  return (((wk%2)+2)%2===0)?1:2; // 1 = Office 1&4, 2 = Office 2&3
 }
 
 function getDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
