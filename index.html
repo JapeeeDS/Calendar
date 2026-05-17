@@ -325,6 +325,8 @@
   .upcoming-year { font-size:.85rem; font-weight:700; margin-top:4px; opacity:.95;}
   .upcoming-month { font-size:.85rem; font-weight:700; color:#e5e5e5; }
   .upcoming-empty { color:var(--muted); font-size:.9rem; font-weight:500; }
+  .upcoming-card { cursor:pointer; }
+  .upcoming-card:hover { border-color:#3a3a3a; transform:translateY(-1px); transition:all .15s; }
   .upcoming-fade { animation: upFade .5s ease; }
   @keyframes upFade {
     from { opacity:0; transform:translateY(6px); }
@@ -1034,6 +1036,7 @@ function renderUpcoming(){
   card.classList.remove('upcoming-fade');
   void card.offsetWidth;
   card.classList.add('upcoming-fade');
+  card.onclick = () => showPopup(ev);
 }
 
 function cycleUpcoming(){
