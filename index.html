@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calendar Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#000;
+    --surface:#0a0a0a;
+    --surface-2:#111;
+    --border:#1f1f1f;
+    --border-strong:#2a2a2a;
+    --text:#fff;
+    --muted:#7a7a7a;
+    --green:#22c55e;
+    --green-deep:#0f3d20;
+    --green-glow:rgba(34,197,94,.35);
+    --cyan:#00d4ff;
+    --yellow:#facc15;
+    --red:#ef4444;
+  }
+  html,body{background:var(--bg);}
+  body {
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    padding:18px;
+    background:
+      radial-gradient(1000px 600px at 85% -10%, rgba(34,197,94,.08), transparent 60%),
+      radial-gradient(800px 500px at -10% 110%, rgba(0,212,255,.05), transparent 60%),
+      #000;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .container { max-width:1480px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; }
+
+  /* Header */
+  .header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px; flex-shrink:0;
+  }
+  .header h1 {
+    font-size:1.9rem; font-weight:800; letter-spacing:-0.6px;
+    background:linear-gradient(180deg,#fff 0%, #c9c9c9 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .header-right { display:flex; align-items:center; gap:18px; }
+  .current-day { font-size:1.05rem; font-weight:500; color:#d4d4d4; letter-spacing:.2px;}
+  .current-day b { font-weight:800; color:#fff; }
+  .selectors { display:flex; gap:10px; }
+  .selector {
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:9px 36px 9px 18px;
+    font-family:inherit;
+    font-size:.92rem;
+    font-weight:700;
+    cursor:pointer;
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    background-size:12px;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .selector:hover{ transform:translateY(-1px); }
+  .selector.month {
+    background-color:var(--green); color:#fff;
+    box-shadow:0 6px 18px -6px var(--green-glow), inset 0 1px 0 rgba(255,255,255,.25);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  }
+  .selector.year {
+    background-color:#fff; color:#000;
+    box-shadow:0 6px 18px -8px rgba(255,255,255,.25), inset 0 1px 0 rgba(255,255,255,.6);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  }
+  .selector:focus { outline:none; box-shadow:0 0 0 2px rgba(255,255,255,.15); }
+  .selector option { background:#0a0a0a; color:#fff; }
+  .selector.year option { background:#fff; color:#000; }
+
+  /* Grid */
+  .main-grid {
+    display:grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+    gap:16px;
+    align-items:stretch;
+    flex:1; min-height:0;
+  }
+  .left-column { display:flex; flex-direction:column; gap:12px; min-width:0; min-height:0;}
+  .right-column { display:flex; flex-direction:column; gap:12px; min-height:0; }
+
+  .card {
+    background:linear-gradient(180deg, #0c0c0c 0%, #060606 100%);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:18px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 20px 40px -30px rgba(0,0,0,.8);
+  }
+
+  /* Pie section */
+  .pie-section { display:flex; align-items:center; gap:18px; }
+  .legend { display:flex; flex-direction:column; gap:12px; flex:1; }
+  .legend-item { display:flex; align-items:center; gap:10px; font-size:.92rem; color:#d4d4d4;}
+  .legend-color { width:14px; height:14px; border-radius:4px; flex-shrink:0; box-shadow:0 0 12px -2px currentColor; }
+  .legend-office     { background:var(--green); color:var(--green);}
+  .legend-regular    { background:var(--cyan);  color:var(--cyan);}
+  .legend-special    { background:var(--yellow);color:var(--yellow);}
+  .legend-cutoff     { background:var(--red);   color:var(--red);}
+  .pie-container { flex-shrink:0; filter: drop-shadow(0 6px 24px rgba(34,197,94,.25));}
+
+  /* Clock + buttons */
+  .clock-row { display:flex; gap:12px; }
+  .clock-card {
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px 18px;
+    min-height:128px;
+    background:
+      radial-gradient(400px 120px at 50% 100%, rgba(34,197,94,.1), transparent 70%),
+      linear-gradient(180deg, #0c0c0c, #060606);
+  }
+  .clock-time {
+    font-size:3.2rem; font-weight:800; letter-spacing:-2px; line-height:1;
+    font-variant-numeric: tabular-nums;
+    background:linear-gradient(180deg,#fff 0%,#a3a3a3 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .clock-ampm { font-size:1.2rem; font-weight:700; margin-left:6px; color:#9ca3af;}
+  .buttons-col { display:flex; flex-direction:column; gap:7px; width:128px; }
+  .toggle-btn {
+    background:#161616;
+    color:#e5e5e5;
+    border:1px solid var(--border-strong);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+    transition:all .15s;
+    letter-spacing:.2px;
+  }
+  .toggle-btn:hover { background:#1f1f1f; border-color:#3a3a3a; }
+  .toggle-btn.active {
+    background:var(--green); color:#fff; border-color:var(--green);
+    box-shadow:0 6px 18px -6px var(--green-glow);
+  }
+
+  /* Status card */
+  .status-card {
+    border-radius:20px;
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    min-height:110px;
+    background:linear-gradient(135deg, #0f3d20 0%, #082516 100%);
+    border:1px solid #1f5a32;
+    box-shadow:0 14px 40px -20px rgba(34,197,94,.4);
+    transition:all .2s;
+  }
+  .status-card.workday {
+    background:linear-gradient(180deg,#0c0c0c,#060606);
+    border-color:var(--border-strong);
+    box-shadow:none;
+  }
+  .status-card.holiday-regular  { background:linear-gradient(135deg,#003a4a,#001f28); border-color:#0a5a73; box-shadow:0 14px 40px -20px rgba(0,212,255,.35);}
+  .status-card.holiday-special  { background:linear-gradient(135deg,#3d3a00,#1f1d00); border-color:#5a5400; box-shadow:0 14px 40px -20px rgba(250,204,21,.35);}
+  .status-card.holiday-cutoff   { background:linear-gradient(135deg,#3d0a0a,#1f0505); border-color:#6b1010; box-shadow:0 14px 40px -20px rgba(239,68,68,.35);}
+
+  .status-left { display:flex; align-items:center; gap:18px; }
+  .date-box {
+    width:62px; height:62px;
+    background:#fff; color:#000;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.9rem; font-weight:800;
+    box-shadow:0 4px 16px -4px rgba(255,255,255,.2);
+  }
+  .status-label { font-size:1.55rem; font-weight:800; letter-spacing:-.3px;}
+  .status-right {
+    display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between;
+    height:62px; font-weight:600; font-size:.95rem; color:#d4d4d4;
+  }
+  .status-right .y { color:#9ca3af; font-weight:500; }
+
+  /* Calendar */
+  .calendar-card {
+    padding:16px;
+    background:linear-gradient(180deg,#0c0c0c,#060606);
+    width:100%;
+    max-width:100%;
+    flex:1; min-height:0;
+    display:flex; flex-direction:column;
+  }
+  .calendar-grid {
+    display:grid;
+    grid-template-columns:repeat(7, minmax(0, 1fr));
+    grid-template-rows:auto repeat(6, minmax(0, 1fr));
+    gap:6px;
+    flex:1; min-height:0;
+  }
+  .day-header {
+    height:22px;
+    text-align:center;
+    font-size:.7rem;
+    font-weight:700;
+    color:var(--muted);
+    letter-spacing:1px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .calendar-day {
+    position:relative;
+    width:100%;
+    min-height:0;
+    border:1px solid #2a2a2a;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s, border-color .15s, color .15s, box-shadow .15s;
+    font-size:.9rem;
+    background:#0a0a0a;
+  }
+  .calendar-day:hover { background:#161616; border-color:#3a3a3a; }
+  .calendar-day.other-month { color:#3a3a3a; border-color:#1a1a1a; background:transparent;}
+  .calendar-day.other-month:hover { transform:none; background:#0a0a0a; }
+  .calendar-day.weekend  { color:#f87171; }
+  .calendar-day.selected {
+    background:var(--green); border-color:var(--green); color:#fff;
+    box-shadow:0 8px 20px -6px var(--green-glow);
+  }
+  .calendar-day.today { background:#fff; color:#000; border-color:#fff; box-shadow:0 6px 18px -6px rgba(255,255,255,.25);}
+  .calendar-day.office   { background:var(--green); color:#fff; border-color:var(--green);}
+  .calendar-day.office2  { background:#15803d; color:#fff; border-color:#15803d;}
+  .calendar-day.regular  { background:var(--cyan); color:#000; border-color:var(--cyan);}
+  .calendar-day.special  { background:var(--yellow); color:#000; border-color:var(--yellow);}
+  .calendar-day.cutoff   { background:var(--red); color:#fff; border-color:var(--red);}
+
+  .tooltip {
+    position:absolute;
+    bottom:calc(100% + 8px);
+    left:50%;
+    transform:translateX(-50%) translateY(4px);
+    background:#0a0a0a;
+    border:1px solid #2a2a2a;
+    border-radius:10px;
+    padding:8px 12px;
+    font-size:.72rem;
+    font-weight:500;
+    white-space:nowrap;
+    z-index:10;
+    opacity:0;
+    pointer-events:none;
+    transition:all .15s;
+    color:#fff;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.8);
+  }
+  .tooltip-type { font-weight:700; color:var(--green); }
+  .tooltip-type.special  { color:var(--yellow); }
+  .tooltip-type.cutoff   { color:var(--red); }
+  .calendar-day:hover .tooltip { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* Holiday bar chart */
+  .chart-card {
+    border:1px solid #1f5a32;
+    border-radius:18px;
+    padding:14px 16px;
+    background:
+      radial-gradient(600px 200px at 50% 120%, rgba(34,197,94,.08), transparent 60%),
+      linear-gradient(180deg,#0c0c0c,#060606);
+    height:170px;
+    flex-shrink:0;
+    box-shadow:0 14px 40px -24px rgba(34,197,94,.25);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .chart-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .chart-title { font-size:.85rem; font-weight:700; color:#d4d4d4; letter-spacing:.5px; text-transform:uppercase; }
+  .selector.chart-year { padding:6px 28px 6px 14px; font-size:.8rem; background-size:10px; background-position:right 10px center; }
+  .chart-canvas-wrap { flex:1; min-height:0; position:relative; }
+  .chart-container { width:100%; height:100%; display:block; }
+
+  /* Upcoming Events */
+  .upcoming-card {
+    border-radius:20px;
+    padding:18px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    background:linear-gradient(180deg,#0c0c0c,#060606);
+    border:1px solid var(--border-strong);
+    box-shadow:0 14px 40px -24px rgba(34,197,94,.25);
+    min-height:140px;
+    position:relative;
+    overflow:hidden;
+  }
+  .upcoming-left { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .upcoming-tag { font-size:.78rem; font-weight:600; color:var(--muted); letter-spacing:.5px; }
+  .upcoming-title {
+    font-size:1.55rem; font-weight:800; letter-spacing:-.4px;
+    color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .upcoming-desc {
+    font-size:.82rem; color:#9ca3af; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .upcoming-right { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0;}
+  .upcoming-date-box {
+    background:var(--green);
+    border-radius:14px;
+    width:84px; height:84px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; line-height:1;
+    box-shadow:0 8px 24px -8px var(--green-glow), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .upcoming-day { font-size:2rem; font-weight:800; letter-spacing:-1px; }
+  .upcoming-year { font-size:.85rem; font-weight:700; margin-top:4px; opacity:.95;}
+  .upcoming-month { font-size:.85rem; font-weight:700; color:#e5e5e5; }
+  .upcoming-empty { color:var(--muted); font-size:.9rem; font-weight:500; }
+  .upcoming-fade { animation: upFade .5s ease; }
+  @keyframes upFade {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  @media (max-width:1100px){
+    .main-grid { grid-template-columns:1fr; }
+    .header { flex-direction:column; align-items:flex-start; gap:12px; }
+    .header-right { width:100%; flex-wrap:wrap; justify-content:space-between; }
+  }
+  @media (max-width:720px){
+    body { padding:14px; }
+    .header h1 { font-size:1.4rem; }
+    .pie-section { flex-direction:column; align-items:stretch; }
+    .pie-container { align-self:center; }
+    .clock-row { flex-direction:column; }
+    .buttons-col { width:100%; flex-direction:row; flex-wrap:wrap; }
+    .buttons-col .toggle-btn { flex:1 1 calc(50% - 4px); }
+    .clock-time { font-size:2.4rem; }
+    .status-card { flex-direction:column; align-items:flex-start; gap:12px; }
+    .status-right { flex-direction:row; gap:10px; align-items:center; height:auto; align-self:flex-start; }
+    .date-box { width:52px; height:52px; font-size:1.5rem; }
+    .status-label { font-size:1.2rem; }
+    .calendar-grid { gap:4px; }
+    .calendar-day { font-size:.78rem; border-radius:8px; }
+    .day-header { font-size:.6rem; letter-spacing:.5px; }
+    .chart-card { height:150px; }
+  }
+  @media (max-width:420px){
+    .calendar-card { padding:12px; }
+    .calendar-grid { gap:3px; }
+    .calendar-day { font-size:.7rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Calendar Schedule</h1>
+    <div class="header-right">
+      <div class="current-day" id="currentDay">Sunday, <b>17</b></div>
+      <div class="selectors">
+        <select class="selector month" id="monthSelector"></select>
+        <select class="selector year" id="yearSelector"></select>
+      </div>
+      </div>
+    </div>
+
+  <div class="main-grid">
+    <!-- LEFT -->
+    <div class="left-column">
+      <div class="card pie-section">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-color legend-office"></div><span>Office Schedule</span></div>
+          <div class="legend-item"><div class="legend-color legend-regular"></div><span>Regular Holiday</span></div>
+          <div class="legend-item"><div class="legend-color legend-special"></div><span>Special Holiday</span></div>
+          <div class="legend-item"><div class="legend-color legend-cutoff"></div><span>Australian Holiday</span></div>
+        </div>
+        <div class="pie-container">
+          <canvas id="pieChart" width="200" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="clock-row">
+        <div class="card clock-card">
+          <div>
+            <span class="clock-time" id="clockTime">8:42:00</span><span class="clock-ampm" id="clockAmPm">am</span>
+          </div>
+        </div>
+        <div class="buttons-col">
+          <button class="toggle-btn" id="btnOffice1">Office 1 &amp; 4</button>
+          <button class="toggle-btn" id="btnOffice2">Office 2 &amp; 3</button>
+          <button class="toggle-btn" id="btnRegular">R. Holiday</button>
+          <button class="toggle-btn" id="btnSpecial">S. Holiday</button>
+          <button class="toggle-btn" id="btnCutoff">A. Holiday</button>
+        </div>
+      </div>
+
+      <div class="status-card" id="statusCard">
+        <div class="status-left">
+          <div class="date-box" id="statusDay">17</div>
+          <div class="status-label" id="statusLabel">Rest Day</div>
+        </div>
+        <div class="status-right">
+          <div id="statusMonth">May</div>
+          <div class="y" id="statusYear">2026</div>
+        </div>
+      </div>
+
+      <div class="upcoming-card" id="upcomingCard">
+        <div class="upcoming-left">
+          <div class="upcoming-tag">Upcoming Event!</div>
+          <div class="upcoming-title" id="upcomingTitle">Loading…</div>
+          <div class="upcoming-desc" id="upcomingDesc">Fetching events from Google Sheets</div>
+        </div>
+        <div class="upcoming-right" id="upcomingRight" style="display:none;">
+          <div class="upcoming-date-box">
+            <div class="upcoming-day" id="upcomingDay">--</div>
+            <div class="upcoming-year" id="upcomingYear">----</div>
+          </div>
+          <div class="upcoming-month" id="upcomingMonth">Month</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-column">
+      <div class="card calendar-card">
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Holidays</span>
+          <select class="selector year chart-year" id="chartYearSelector"></select>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="holidayChart" class="chart-container"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ----------- Holiday data (Philippines + Australian renamed "Cutoff") ----------- */
+const regularHolidaysData = [
+  { date:"2024-01-01", name:"New Year's Day" },{ date:"2024-03-28", name:"Maundy Thursday" },{ date:"2024-03-29", name:"Good Friday" },{ date:"2024-04-09", name:"Araw ng Kagitingan" },{ date:"2024-05-01", name:"Labor Day" },{ date:"2024-06-12", name:"Independence Day" },{ date:"2024-08-26", name:"National Heroes Day" },{ date:"2024-11-30", name:"Bonifacio Day" },{ date:"2024-12-25", name:"Christmas Day" },{ date:"2024-12-30", name:"Rizal Day" },
+  { date:"2025-01-01", name:"New Year's Day" },{ date:"2025-04-01", name:"Eid'l Fitr" },{ date:"2025-04-09", name:"Araw ng Kagitingan" },{ date:"2025-04-17", name:"Maundy Thursday" },{ date:"2025-04-18", name:"Good Friday" },{ date:"2025-05-01", name:"Labor Day" },{ date:"2025-06-06", name:"Eidul Adha" },{ date:"2025-06-12", name:"Independence Day" },{ date:"2025-08-25", name:"National Heroes Day" },{ date:"2025-11-30", name:"Bonifacio Day" },{ date:"2025-12-25", name:"Christmas Day" },{ date:"2025-12-30", name:"Rizal Day" },
+  { date:"2026-01-01", name:"New Year's Day" },{ date:"2026-04-02", name:"Maundy Thursday" },{ date:"2026-04-03", name:"Good Friday" },{ date:"2026-04-09", name:"Araw ng Kagitingan" },{ date:"2026-05-01", name:"Labor Day" },{ date:"2026-06-12", name:"Independence Day" },{ date:"2026-08-31", name:"National Heroes Day" },{ date:"2026-11-30", name:"Bonifacio Day" },{ date:"2026-12-25", name:"Christmas Day" },{ date:"2026-12-30", name:"Rizal Day" }
+];
+const specialHolidaysData = [
+  { date:"2024-02-10", name:"Chinese New Year" },{ date:"2024-03-30", name:"Black Saturday" },{ date:"2024-08-21", name:"Ninoy Aquino Day" },{ date:"2024-11-01", name:"All Saints' Day" },{ date:"2024-11-02", name:"All Souls' Day" },{ date:"2024-12-08", name:"Feast of the Immaculate Conception" },{ date:"2024-12-24", name:"Christmas Eve" },{ date:"2024-12-31", name:"Last Day of the Year" },
+  { date:"2025-01-29", name:"Chinese New Year" },{ date:"2025-04-19", name:"Black Saturday" },{ date:"2025-05-12", name:"National and Local Elections" },{ date:"2025-07-27", name:"Proclamation No. 729" },{ date:"2025-08-21", name:"Ninoy Aquino Day" },{ date:"2025-10-31", name:"All Saints' Day Eve" },{ date:"2025-11-01", name:"All Saints' Day" },{ date:"2025-12-08", name:"Feast of the Immaculate Conception" },{ date:"2025-12-24", name:"Christmas Eve" },{ date:"2025-12-31", name:"Last Day of the Year" },
+  { date:"2026-02-17", name:"Chinese New Year" },{ date:"2026-04-04", name:"Black Saturday" },{ date:"2026-08-21", name:"Ninoy Aquino Day" },{ date:"2026-11-01", name:"All Saints' Day" },{ date:"2026-11-02", name:"All Souls' Day" },{ date:"2026-12-08", name:"Feast of the Immaculate Conception" },{ date:"2026-12-24", name:"Christmas Eve" },{ date:"2026-12-31", name:"Last Day of the Year" }
+];
+const cutoffData = [
+  /* 2024 */
+  { date:"2024-01-26", name:"Australia Day" },
+  { date:"2024-03-29", name:"Good Friday" },
+  { date:"2024-04-01", name:"Easter Monday" },
+  { date:"2024-04-25", name:"ANZAC Day" },
+  { date:"2024-06-10", name:"King's Birthday" },
+  { date:"2024-12-26", name:"Boxing Day" },
+  /* 2025 */
+  { date:"2025-01-27", name:"Australia Day (Observed)" },
+  { date:"2025-04-18", name:"Good Friday" },
+  { date:"2025-04-21", name:"Easter Monday" },
+  { date:"2025-04-25", name:"ANZAC Day" },
+  { date:"2025-06-09", name:"King's Birthday" },
+  { date:"2025-12-26", name:"Boxing Day" },
+  /* 2026 */
+  { date:"2026-01-26", name:"Australia Day" },
+  { date:"2026-02-01", name:"Royal Hobart Regatta" },
+  { date:"2026-03-09", name:"Labour Day" },
+  { date:"2026-04-03", name:"Good Friday" },
+  { date:"2026-04-06", name:"Easter Monday" },
+  { date:"2026-04-25", name:"ANZAC Day" },
+  { date:"2026-05-04", name:"May Day" },
+  { date:"2026-06-01", name:"Western Australia Day" },
+  { date:"2026-06-08", name:"King's Birthday" },
+  { date:"2026-08-03", name:"Picnic Day" },
+  { date:"2026-09-25", name:"AFL Grand Final Friday" },
+  { date:"2026-09-28", name:"Queen's Birthday (WA)" },
+  { date:"2026-10-05", name:"Labour Day" },
+  { date:"2026-12-28", name:"Boxing Day (Observed)" },
+  /* 2027 */
+  { date:"2027-01-26", name:"Australia Day" },
+  { date:"2027-03-26", name:"Good Friday" },
+  { date:"2027-03-29", name:"Easter Monday" },
+  { date:"2027-04-26", name:"ANZAC Day (Observed)" },
+  { date:"2027-06-14", name:"King's Birthday" },
+  { date:"2027-12-27", name:"Christmas Day (Observed)" },
+  { date:"2027-12-28", name:"Boxing Day (Observed)" },
+  /* 2028 */
+  { date:"2028-01-26", name:"Australia Day" },
+  { date:"2028-04-14", name:"Good Friday" },
+  { date:"2028-04-17", name:"Easter Monday" },
+  { date:"2028-04-25", name:"ANZAC Day" },
+  { date:"2028-06-12", name:"King's Birthday" },
+  { date:"2028-12-25", name:"Christmas Day" },
+  { date:"2028-12-26", name:"Boxing Day" }
+];
+const regularHolidays = regularHolidaysData.map(h=>h.date);
+const specialHolidays = specialHolidaysData.map(h=>h.date);
+const cutoffs = cutoffData.map(h=>h.date);
+
+/* ----------- State ----------- */
+const today = new Date();
+let selectedMonth = today.getMonth();
+let selectedYear  = today.getFullYear();
+let chartYear     = today.getFullYear();
+let selectedDate  = new Date(today);
+let office1Active=false, office2Active=false, regularActive=false, specialActive=false, cutoffActive=false;
+
+/* ----------- DOM ----------- */
+const monthSelector = document.getElementById('monthSelector');
+const yearSelector  = document.getElementById('yearSelector');
+const chartYearSelector = document.getElementById('chartYearSelector');
+const calendarGrid  = document.getElementById('calendarGrid');
+const currentDayEl  = document.getElementById('currentDay');
+const clockTimeEl   = document.getElementById('clockTime');
+const clockAmPmEl   = document.getElementById('clockAmPm');
+const btnOffice1=document.getElementById('btnOffice1');
+const btnOffice2=document.getElementById('btnOffice2');
+const btnRegular=document.getElementById('btnRegular');
+const btnSpecial=document.getElementById('btnSpecial');
+const btnCutoff =document.getElementById('btnCutoff');
+const statusCard=document.getElementById('statusCard');
+const statusDay =document.getElementById('statusDay');
+const statusLabel=document.getElementById('statusLabel');
+const statusMonth=document.getElementById('statusMonth');
+const statusYear =document.getElementById('statusYear');
+
+/* Populate selectors */
+const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+monthNames.forEach((m,i)=>{
+  const o=document.createElement('option'); o.value=i; o.textContent=m;
+  if(i===selectedMonth) o.selected=true;
+  monthSelector.appendChild(o);
+});
+for(let y=2024;y<=2028;y++){
+  const o=document.createElement('option'); o.value=y; o.textContent=y;
+  if(y===selectedYear) o.selected=true;
+  yearSelector.appendChild(o);
+  const o2=document.createElement('option'); o2.value=y; o2.textContent=y;
+  if(y===chartYear) o2.selected=true;
+  chartYearSelector.appendChild(o2);
+}
+
+/* ----------- Helpers ----------- */
+function fmt(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function isRegular(d){return regularHolidays.includes(fmt(d));}
+function isSpecial(d){return specialHolidays.includes(fmt(d));}
+function isCutoff(d){return cutoffs.includes(fmt(d));}
+function isWeekend(d){const w=d.getDay();return w===0||w===6;}
+
+function getHolidayInfo(d){
+  const s=fmt(d);
+  const r=regularHolidaysData.find(h=>h.date===s); if(r) return {type:'Regular Holiday',name:r.name,cls:''};
+  const sp=specialHolidaysData.find(h=>h.date===s); if(sp) return {type:'Special Holiday',name:sp.name,cls:'special'};
+  const c=cutoffData.find(h=>h.date===s); if(c) return {type:'Australian Holiday',name:c.name,cls:'cutoff'};
+  return null;
+}
+
+/* Office schedule: bi-weekly alternating. Office 1&4 = even week index, Office 2&3 = odd */
+function officeGroup(date){
+  const start=new Date(selectedYear,0,5);
+  const w=date.getDay();
+  if(w===0||w===6) return 0;
+  const diffDays=Math.floor((date-start)/(1000*60*60*24));
+  if(diffDays<0) return 0;
+  const wk=Math.floor(diffDays/7);
+  return (wk%2===0)?1:2; // 1 = Office 1&4, 2 = Office 2&3
+}
+
+function getDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function getFirstDayOfMonth(y,m){return new Date(y,m,1).getDay();}
+function isToday(d){return d.toDateString()===new Date().toDateString();}
+function isSelected(d){return selectedDate && d.toDateString()===selectedDate.toDateString();}
+
+/* ----------- Clock ----------- */
+function updateClock(){
+  const n=new Date();
+  let h=n.getHours();
+  const m=String(n.getMinutes()).padStart(2,'0');
+  const s=String(n.getSeconds()).padStart(2,'0');
+  const ap=h>=12?'pm':'am';
+  h=h%12||12;
+  clockTimeEl.textContent=`${h}:${m}:${s}`;
+  clockAmPmEl.textContent=ap;
+}
+
+/* ----------- Status (Rest Day / holiday / workday) ----------- */
+function updateStatus(date){
+  statusDay.textContent=date.getDate();
+  statusMonth.textContent=monthNames[date.getMonth()];
+  statusYear.textContent=date.getFullYear();
+  statusCard.className='status-card';
+  let label='Workday';
+  if(isWeekend(date)){ label='Rest Day'; }
+  else {
+    const info=getHolidayInfo(date);
+    if(info){
+      label=info.type;
+      if(info.cls==='special') statusCard.classList.add('holiday-special');
+      else if(info.cls==='cutoff') statusCard.classList.add('holiday-cutoff');
+      else statusCard.classList.add('holiday-regular');
+    } else {
+      statusCard.classList.add('workday');
+    }
+  }
+  if(label==='Rest Day') {/* default green styling */}
+  statusLabel.textContent=label;
+}
+
+function updateCurrentDayDisplay(d){
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  currentDayEl.innerHTML=`${days[d.getDay()]}, <b>${d.getDate()}</b>`;
+}
+
+/* ----------- Calendar ----------- */
+function handleDateClick(y,m,d){
+  selectedDate=new Date(y,m,d);
+  updateCurrentDayDisplay(selectedDate);
+  updateStatus(selectedDate);
+  renderCalendar();
+}
+
+function tooltipFor(date){
+  const info=getHolidayInfo(date);
+  if(!info) return '';
+  return `<div class="tooltip"><span class="tooltip-type ${info.cls}">${info.type}</span><br>${info.name}</div>`;
+}
+
+function dayClasses(date,isCurrent){
+  const c=['calendar-day'];
+  if(!isCurrent) c.push('other-month');
+  if(isWeekend(date) && isCurrent) c.push('weekend');
+  if(isSelected(date)) c.push('selected');
+  if(isToday(date)) { c.push('today'); return c.join(' '); }
+  if(cutoffActive && isCutoff(date)) c.push('cutoff');
+  else if(specialActive && isSpecial(date)) c.push('special');
+  else if(regularActive && isRegular(date)) c.push('regular');
+  else {
+    const g=officeGroup(date);
+    if(office1Active && g===1) c.push('office');
+    else if(office2Active && g===2) c.push('office2');
+  }
+  return c.join(' ');
+}
+
+function renderCalendar(){
+  const days=['SU','MO','TU','WE','TH','FR','SA'];
+  const dim=getDaysInMonth(selectedYear,selectedMonth);
+  const first=getFirstDayOfMonth(selectedYear,selectedMonth);
+  const pm=selectedMonth===0?11:selectedMonth-1;
+  const pmy=selectedMonth===0?selectedYear-1:selectedYear;
+  const pdim=getDaysInMonth(pmy,pm);
+  let html='';
+  days.forEach(d=>html+=`<div class="day-header">${d}</div>`);
+  for(let i=first-1;i>=0;i--){
+    const day=pdim-i;
+    const date=new Date(pmy,pm,day);
+    html+=`<div class="${dayClasses(date,false)}" onclick="handleDateClick(${pmy},${pm},${day})">${day}${tooltipFor(date)}</div>`;
+  }
+  for(let i=1;i<=dim;i++){
+    const date=new Date(selectedYear,selectedMonth,i);
+    html+=`<div class="${dayClasses(date,true)}" onclick="handleDateClick(${selectedYear},${selectedMonth},${i})">${i}${tooltipFor(date)}</div>`;
+  }
+  const total=first+dim;
+  const rem=42-total; // always render 6 rows for fixed-size calendar
+  const nm=selectedMonth===11?0:selectedMonth+1;
+  const nmy=selectedMonth===11?selectedYear+1:selectedYear;
+  for(let i=1;i<=rem;i++){
+    const date=new Date(nmy,nm,i);
+    html+=`<div class="${dayClasses(date,false)}" onclick="handleDateClick(${nmy},${nm},${i})">${i}${tooltipFor(date)}</div>`;
+  }
+  calendarGrid.innerHTML=html;
+}
+
+/* ----------- Year counts (respects active category toggles) ----------- */
+function yearCounts(){
+  let office=0,regular=0,special=0,cutoff=0;
+  const anyActive = office1Active||office2Active||regularActive||specialActive||cutoffActive;
+  for(let m=0;m<12;m++){
+    const dim=getDaysInMonth(selectedYear,m);
+    for(let d=1;d<=dim;d++){
+      const dt=new Date(selectedYear,m,d);
+      if(cutoffActive && isCutoff(dt)) { cutoff++; continue; }
+      if(specialActive && isSpecial(dt)) { special++; continue; }
+      if(regularActive && isRegular(dt)) { regular++; continue; }
+      const g=officeGroup(dt);
+      if(g===1 && office1Active) { office++; continue; }
+      if(g===2 && office2Active) { office++; continue; }
+    }
+  }
+  return {office,regular,special,cutoff,anyActive};
+}
+
+/* ----------- Pie ----------- */
+function drawPie(){
+  const cv=document.getElementById('pieChart');
+  const ctx=cv.getContext('2d');
+  const cx=cv.width/2, cy=cv.height/2, r=80;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const c=yearCounts();
+  const data=[
+    {label:'Office',value:c.office,color:'#22c55e',active:office1Active||office2Active},
+    {label:'Regular',value:c.regular,color:'#00d4ff',active:regularActive},
+    {label:'Special',value:c.special,color:'#e6e600',active:specialActive},
+    {label:'Australian',value:c.cutoff,color:'#ff2d2d',active:cutoffActive}
+  ].filter(d=>d.active);
+  const total=data.reduce((s,d)=>s+d.value,0);
+  if(total===0){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle='#1a1a1a';ctx.fill();
+    ctx.fillStyle='#666';ctx.font='bold 12px Inter';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(c.anyActive?'No data':'Select a category',cx,cy);
+    return;
+  }
+  let a=-Math.PI/2;
+  data.forEach(seg=>{
+    if(seg.value===0) return;
+    const sa=(seg.value/total)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,a,a+sa);ctx.closePath();
+    ctx.fillStyle=seg.color;ctx.fill();
+    const ma=a+sa/2, lr=r*0.62;
+    const lx=cx+Math.cos(ma)*lr, ly=cy+Math.sin(ma)*lr;
+    const pct=Math.round((seg.value/total)*100);
+    ctx.fillStyle=(seg.color==='#e6e600'||seg.color==='#00d4ff')?'#000':'#fff';
+    ctx.font='bold 13px Inter';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(`${pct}%`,lx,ly);
+    a+=sa;
+  });
+}
+
+/* ----------- Holiday bar chart ----------- */
+function drawBars(){
+  const cv=document.getElementById('holidayChart');
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.parentElement.offsetWidth, h=cv.parentElement.offsetHeight;
+  if(w===0||h===0) return;
+  cv.width=w*dpr; cv.height=h*dpr;
+  cv.style.width=w+'px'; cv.style.height=h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const data=months.map((_,m)=>{
+    let reg=0,spe=0,aus=0;
+    const dim=getDaysInMonth(chartYear,m);
+    for(let d=1;d<=dim;d++){
+      const dt=new Date(chartYear,m,d);
+      if(isRegular(dt)) reg++;
+      if(isSpecial(dt)) spe++;
+      if(isCutoff(dt))  aus++;
+    }
+    return {reg,spe,aus,total:reg+spe+aus};
+  });
+  const maxC=Math.max(...data.map(d=>d.total),4);
+  const pad={t:14,r:10,b:24,l:24};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#fff';
+  ctx.font='10px Inter';
+  ctx.textAlign='right';
+  const step=Math.ceil(maxC/4);
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ch-(i/4)*ch;
+    ctx.fillText((i*step).toString(),pad.l-4,y+3);
+  }
+  ctx.textAlign='center';
+  const bw=cw/12*0.55, gap=cw/12;
+  const colors={reg:'#00d4ff',spe:'#facc15',aus:'#ef4444'};
+  months.forEach((m,i)=>{
+    const x=pad.l+i*gap+gap/2;
+    ctx.fillStyle='#fff';
+    ctx.fillText(m,x,h-8);
+    const d=data[i];
+    if(d.total>0){
+      const unit=ch/(step*4||1);
+      let y=pad.t+ch;
+      [['reg',d.reg],['spe',d.spe],['aus',d.aus]].forEach(([k,v])=>{
+        if(v<=0) return;
+        const bh=v*unit;
+        y-=bh;
+        ctx.fillStyle=colors[k];
+        ctx.fillRect(x-bw/2,y,bw,bh);
+      });
+    }
+  });
+}
+
+function updateCharts(){ drawPie(); drawBars(); }
+
+/* ----------- Events ----------- */
+monthSelector.addEventListener('change',e=>{selectedMonth=parseInt(e.target.value);renderCalendar();updateCharts();});
+yearSelector.addEventListener('change',e=>{selectedYear=parseInt(e.target.value);renderCalendar();updateCharts();});
+chartYearSelector.addEventListener('change',e=>{chartYear=parseInt(e.target.value);drawBars();});
+
+function bindToggle(btn,getter,setter){
+  btn.addEventListener('click',()=>{
+    setter(!getter());
+    btn.classList.toggle('active',getter());
+    renderCalendar();updateCharts();
+  });
+}
+bindToggle(btnOffice1,()=>office1Active,v=>office1Active=v);
+bindToggle(btnOffice2,()=>office2Active,v=>office2Active=v);
+bindToggle(btnRegular,()=>regularActive,v=>regularActive=v);
+bindToggle(btnSpecial,()=>specialActive,v=>specialActive=v);
+bindToggle(btnCutoff ,()=>cutoffActive ,v=>cutoffActive =v);
+
+/* ----------- Init ----------- */
+updateClock(); setInterval(updateClock,1000);
+updateCurrentDayDisplay(selectedDate);
+updateStatus(selectedDate);
+renderCalendar();
+setTimeout(updateCharts,50);
+window.addEventListener('resize',updateCharts);
+
+/* ----------- Upcoming Events (Google Sheets) ----------- */
+const SHEET_ID = '1a3S1NSTf_QJDhhj0O5urF-eBPpRkyLGVGPT564_890M';
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+const MONTH_NAMES_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let upcomingEvents = [];
+let upcomingIndex = 0;
+let upcomingTimer = null;
+
+function parseCSV(text){
+  const rows=[]; let cur=[], val='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQ){
+      if(ch==='"' && text[i+1]==='"'){ val+='"'; i++; }
+      else if(ch==='"'){ inQ=false; }
+      else val+=ch;
+    } else {
+      if(ch==='"') inQ=true;
+      else if(ch===','){ cur.push(val); val=''; }
+      else if(ch==='\n'){ cur.push(val); rows.push(cur); cur=[]; val=''; }
+      else if(ch==='\r'){}
+      else val+=ch;
+    }
+  }
+  if(val.length||cur.length){ cur.push(val); rows.push(cur); }
+  return rows;
+}
+
+function parseSheetDate(s){
+  if(!s) return null;
+  s=s.trim();
+  // Try M/D/YYYY
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(+m[3], +m[1]-1, +m[2]);
+  // Try YYYY-MM-DD
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+  const d=new Date(s);
+  return isNaN(d)?null:d;
+}
+
+function renderUpcoming(){
+  const titleEl=document.getElementById('upcomingTitle');
+  const descEl=document.getElementById('upcomingDesc');
+  const rightEl=document.getElementById('upcomingRight');
+  const dayEl=document.getElementById('upcomingDay');
+  const yearEl=document.getElementById('upcomingYear');
+  const monthEl=document.getElementById('upcomingMonth');
+  const card=document.getElementById('upcomingCard');
+
+  if(!upcomingEvents.length){
+    titleEl.textContent='No upcoming events';
+    descEl.textContent='Check back later for new events.';
+    rightEl.style.display='none';
+    return;
+  }
+  const ev=upcomingEvents[upcomingIndex % upcomingEvents.length];
+  titleEl.textContent=ev.title||'Untitled';
+  descEl.textContent=ev.details||'';
+  rightEl.style.display='flex';
+  dayEl.textContent=String(ev.date.getDate()).padStart(2,'0');
+  yearEl.textContent=ev.date.getFullYear();
+  monthEl.textContent=MONTH_NAMES_FULL[ev.date.getMonth()];
+  card.classList.remove('upcoming-fade');
+  void card.offsetWidth;
+  card.classList.add('upcoming-fade');
+}
+
+function cycleUpcoming(){
+  if(upcomingEvents.length<=1) return;
+  upcomingIndex=(upcomingIndex+1)%upcomingEvents.length;
+  renderUpcoming();
+}
+
+async function loadUpcomingEvents(){
+  try{
+    const res=await fetch(SHEET_CSV_URL,{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const rows=parseCSV(text).filter(r=>r.length && r.some(c=>c && c.trim()));
+    if(!rows.length){ upcomingEvents=[]; renderUpcoming(); return; }
+    // detect header
+    const header=rows[0].map(c=>(c||'').toLowerCase());
+    let dateIdx=header.findIndex(h=>h.includes('date'));
+    let titleIdx=header.findIndex(h=>h.includes('event')||h.includes('title')||h.includes('name'));
+    let detailIdx=header.findIndex(h=>h.includes('detail')||h.includes('description')||h.includes('desc'));
+    let dataRows=rows.slice(1);
+    if(dateIdx===-1){ dateIdx=0; titleIdx=1; detailIdx=2; dataRows=rows; }
+    const today=new Date(); today.setHours(0,0,0,0);
+    const weekAhead=new Date(today); weekAhead.setDate(weekAhead.getDate()+7);
+    const events=[];
+    for(const r of dataRows){
+      const d=parseSheetDate(r[dateIdx]);
+      if(!d) continue;
+      if(d<today || d>weekAhead) continue;
+      events.push({
+        date:d,
+        title:(r[titleIdx]||'').trim(),
+        details:(detailIdx>=0?(r[detailIdx]||''):'').trim()
+      });
+    }
+    events.sort((a,b)=>a.date-b.date);
+    upcomingEvents=events;
+    upcomingIndex=0;
+    renderUpcoming();
+  }catch(err){
+    console.error('Failed to load events:',err);
+    document.getElementById('upcomingTitle').textContent='Unable to load events';
+    document.getElementById('upcomingDesc').textContent='Make sure the Google Sheet is shared as "Anyone with the link".';
+    document.getElementById('upcomingRight').style.display='none';
+  }
+}
+
+loadUpcomingEvents();
+if(upcomingTimer) clearInterval(upcomingTimer);
+upcomingTimer=setInterval(cycleUpcoming,5000);
+setInterval(loadUpcomingEvents, 5*60*1000); // refresh every 5 min
+</script>
+</body>
+</html>
