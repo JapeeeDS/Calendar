@@ -325,8 +325,6 @@
   .upcoming-year { font-size:.85rem; font-weight:700; margin-top:4px; opacity:.95;}
   .upcoming-month { font-size:.85rem; font-weight:700; color:#e5e5e5; }
   .upcoming-empty { color:var(--muted); font-size:.9rem; font-weight:500; }
-  .upcoming-card { cursor:pointer; }
-  .upcoming-card:hover { border-color:#3a3a3a; transform:translateY(-1px); transition:all .15s; }
   .upcoming-fade { animation: upFade .5s ease; }
   @keyframes upFade {
     from { opacity:0; transform:translateY(6px); }
@@ -361,142 +359,6 @@
     .calendar-grid { gap:3px; }
     .calendar-day { font-size:.7rem; }
   }
-
-  /* ===== Fullscreen Popup (Upcoming Event / Deadline) ===== */
-  .popup-overlay {
-    position:fixed; inset:0; z-index:9999;
-    display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none;
-    transition:opacity .35s ease;
-    overflow:hidden;
-  }
-  .popup-overlay.show { opacity:1; pointer-events:auto; }
-  .popup-overlay.event {
-    background:
-      radial-gradient(1200px 700px at 20% 20%, rgba(34,197,94,.35), transparent 60%),
-      radial-gradient(1000px 700px at 80% 80%, rgba(0,212,255,.30), transparent 60%),
-      radial-gradient(900px 600px at 50% 50%, rgba(250,204,21,.18), transparent 70%),
-      rgba(6,20,12,.85);
-    backdrop-filter: blur(8px);
-  }
-  .popup-overlay.deadline {
-    background:
-      radial-gradient(1200px 700px at 50% 50%, rgba(239,68,68,.45), transparent 60%),
-      rgba(20,0,0,.88);
-    backdrop-filter: blur(8px);
-    animation: deadlinePulseBg 1.6s ease-in-out infinite;
-  }
-  @keyframes deadlinePulseBg {
-    0%,100% { filter: brightness(1); }
-    50%     { filter: brightness(1.18); }
-  }
-  .popup-content {
-    position:relative; z-index:2;
-    max-width:min(900px, 92vw);
-    text-align:center;
-    padding:48px 40px;
-    border-radius:28px;
-    transform:scale(.85);
-    transition:transform .45s cubic-bezier(.2,.9,.3,1.2);
-  }
-  .popup-overlay.show .popup-content { transform:scale(1); }
-  .popup-overlay.event .popup-content {
-    background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-    border:1px solid rgba(255,255,255,.22);
-    box-shadow:0 30px 80px -20px rgba(34,197,94,.55), inset 0 1px 0 rgba(255,255,255,.25);
-  }
-  .popup-overlay.deadline .popup-content {
-    background:linear-gradient(180deg, rgba(80,10,10,.6), rgba(40,0,0,.55));
-    border:1px solid rgba(239,68,68,.55);
-    box-shadow:0 30px 80px -20px rgba(239,68,68,.65), inset 0 1px 0 rgba(255,255,255,.08);
-  }
-  .popup-tag {
-    display:inline-block;
-    font-size:.85rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
-    padding:8px 18px; border-radius:999px;
-    margin-bottom:22px;
-  }
-  .popup-overlay.event .popup-tag {
-    background:rgba(34,197,94,.25); color:#bbf7d0; border:1px solid rgba(34,197,94,.5);
-  }
-  .popup-overlay.deadline .popup-tag {
-    background:rgba(239,68,68,.25); color:#fecaca; border:1px solid rgba(239,68,68,.6);
-    animation: deadlineTagBlink 1s ease-in-out infinite;
-  }
-  @keyframes deadlineTagBlink { 0%,100%{opacity:1;} 50%{opacity:.55;} }
-  .popup-title {
-    font-size:clamp(2.4rem, 6vw, 4.6rem);
-    font-weight:900; letter-spacing:-1.5px; line-height:1.05;
-    margin-bottom:18px;
-  }
-  .popup-overlay.event .popup-title {
-    background:linear-gradient(180deg,#ffffff 0%, #d1fae5 60%, #86efac 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    text-shadow:0 0 60px rgba(34,197,94,.4);
-  }
-  .popup-overlay.deadline .popup-title {
-    color:#fff;
-    text-shadow:0 0 30px rgba(239,68,68,.8), 0 0 60px rgba(239,68,68,.4);
-  }
-  .popup-desc {
-    font-size:1.05rem; color:rgba(255,255,255,.85); line-height:1.55;
-    max-width:640px; margin:0 auto 26px;
-  }
-  .popup-date {
-    font-size:1rem; font-weight:600; color:rgba(255,255,255,.7);
-    margin-bottom:28px;
-  }
-  .popup-close {
-    background:rgba(255,255,255,.12);
-    color:#fff;
-    border:1px solid rgba(255,255,255,.25);
-    border-radius:999px;
-    padding:12px 32px;
-    font-family:inherit; font-size:.95rem; font-weight:700;
-    cursor:pointer;
-    transition:all .15s;
-  }
-  .popup-close:hover { background:rgba(255,255,255,.22); transform:translateY(-1px); }
-  .popup-overlay.deadline .popup-close {
-    background:rgba(239,68,68,.25); border-color:rgba(239,68,68,.6);
-  }
-  .popup-overlay.deadline .popup-close:hover { background:rgba(239,68,68,.4); }
-
-  /* Bubbles (event) */
-  .bubble {
-    position:absolute; bottom:-80px;
-    border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.6), rgba(34,197,94,.35) 50%, rgba(34,197,94,.05) 100%);
-    box-shadow:inset 0 0 20px rgba(255,255,255,.3), 0 0 30px rgba(34,197,94,.3);
-    animation: floatUp linear infinite;
-    pointer-events:none;
-  }
-  @keyframes floatUp {
-    0%   { transform:translateY(0) translateX(0) scale(.6); opacity:0; }
-    10%  { opacity:.9; }
-    50%  { transform:translateY(-55vh) translateX(30px) scale(1); }
-    90%  { opacity:.7; }
-    100% { transform:translateY(-115vh) translateX(-20px) scale(1.1); opacity:0; }
-  }
-
-  /* Warning triangles (deadline) */
-  .warning-icon {
-    position:absolute;
-    color:#ef4444;
-    filter: drop-shadow(0 0 12px rgba(239,68,68,.8));
-    animation: warnFloat linear infinite, warnBlink 1.2s ease-in-out infinite;
-    pointer-events:none;
-    opacity:.85;
-  }
-  @keyframes warnFloat {
-    0%   { transform:translateY(110vh) rotate(0deg); }
-    100% { transform:translateY(-20vh) rotate(360deg); }
-  }
-  @keyframes warnBlink {
-    0%,100% { opacity:.9; }
-    50%     { opacity:.35; }
-  }
-
 </style>
 </head>
 <body>
@@ -555,7 +417,7 @@
 
       <div class="upcoming-card" id="upcomingCard">
         <div class="upcoming-left">
-          <div class="upcoming-tag">Upcoming Event!</div>
+          <div class="upcoming-tag" id="upcomingTag">Upcoming Event!</div>
           <div class="upcoming-title" id="upcomingTitle">Loading…</div>
           <div class="upcoming-desc" id="upcomingDesc">Fetching events from Google Sheets</div>
         </div>
@@ -1027,6 +889,9 @@ function renderUpcoming(){
     return;
   }
   const ev=upcomingEvents[upcomingIndex % upcomingEvents.length];
+  const tagEl=document.getElementById('upcomingTag');
+  const typeLabel=(ev.type||'Upcoming Event').trim();
+  tagEl.textContent = /!\s*$/.test(typeLabel) ? typeLabel : typeLabel + '!';
   titleEl.textContent=ev.title||'Untitled';
   descEl.textContent=ev.details||'';
   rightEl.style.display='flex';
@@ -1036,7 +901,6 @@ function renderUpcoming(){
   card.classList.remove('upcoming-fade');
   void card.offsetWidth;
   card.classList.add('upcoming-fade');
-  card.onclick = () => showPopup(ev);
 }
 
 function cycleUpcoming(){
@@ -1052,33 +916,32 @@ async function loadUpcomingEvents(){
     const text=await res.text();
     const rows=parseCSV(text).filter(r=>r.length && r.some(c=>c && c.trim()));
     if(!rows.length){ upcomingEvents=[]; renderUpcoming(); return; }
+    // detect header
     const header=rows[0].map(c=>(c||'').toLowerCase());
-    let typeIdx=header.findIndex(h=>h.includes('type'));
     let dateIdx=header.findIndex(h=>h.includes('date'));
     let titleIdx=header.findIndex(h=>h.includes('event')||h.includes('title')||h.includes('name'));
     let detailIdx=header.findIndex(h=>h.includes('detail')||h.includes('description')||h.includes('desc'));
+    let typeIdx=header.findIndex(h=>h.includes('type'));
     let dataRows=rows.slice(1);
     if(dateIdx===-1){ typeIdx=0; dateIdx=1; titleIdx=2; detailIdx=3; dataRows=rows; }
     const today=new Date(); today.setHours(0,0,0,0);
     const weekAhead=new Date(today); weekAhead.setDate(weekAhead.getDate()+7);
-    const allEvents=[]; const upcomingList=[];
+    const events=[];
     for(const r of dataRows){
       const d=parseSheetDate(r[dateIdx]);
       if(!d) continue;
-      const ev={
+      if(d<today || d>weekAhead) continue;
+      events.push({
         date:d,
-        type:(typeIdx>=0?(r[typeIdx]||''):'').trim(),
         title:(r[titleIdx]||'').trim(),
-        details:(detailIdx>=0?(r[detailIdx]||''):'').trim()
-      };
-      allEvents.push(ev);
-      if(d>=today && d<=weekAhead) upcomingList.push(ev);
+        details:(detailIdx>=0?(r[detailIdx]||''):'').trim(),
+        type:(typeIdx>=0?(r[typeIdx]||''):'').trim()
+      });
     }
-    upcomingList.sort((a,b)=>a.date-b.date);
-    upcomingEvents=upcomingList;
+    events.sort((a,b)=>a.date-b.date);
+    upcomingEvents=events;
     upcomingIndex=0;
     renderUpcoming();
-    checkTodayPopup(allEvents);
   }catch(err){
     console.error('Failed to load events:',err);
     document.getElementById('upcomingTitle').textContent='Unable to load events';
@@ -1087,122 +950,10 @@ async function loadUpcomingEvents(){
   }
 }
 
-
-/* ----------- Fullscreen popup for today's events/deadlines ----------- */
-let popupShownKeys = new Set();
-function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-
-function spawnBubbles(container){
-  container.innerHTML='';
-  const n=28;
-  for(let i=0;i<n;i++){
-    const b=document.createElement('div');
-    b.className='bubble';
-    const size=20+Math.random()*70;
-    b.style.width=size+'px';
-    b.style.height=size+'px';
-    b.style.left=(Math.random()*100)+'vw';
-    b.style.animationDuration=(6+Math.random()*8)+'s';
-    b.style.animationDelay=(Math.random()*6)+'s';
-    container.appendChild(b);
-  }
-}
-function spawnWarnings(container){
-  container.innerHTML='';
-  const n=18;
-  const svg='<svg width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 5l7.5 13h-15L12 7zm-1 5v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>';
-  for(let i=0;i<n;i++){
-    const w=document.createElement('div');
-    w.className='warning-icon';
-    const size=32+Math.random()*60;
-    w.style.width=size+'px';
-    w.style.height=size+'px';
-    w.style.left=(Math.random()*100)+'vw';
-    w.style.animationDuration=(8+Math.random()*7)+'s, '+(0.8+Math.random()*0.8)+'s';
-    w.style.animationDelay=(Math.random()*6)+'s, 0s';
-    w.innerHTML=svg;
-    container.appendChild(w);
-  }
-}
-
-function showPopup(ev){
-  const overlay=document.getElementById('popupOverlay');
-  const bg=document.getElementById('popupBg');
-  const tag=document.getElementById('popupTag');
-  const title=document.getElementById('popupTitle');
-  const desc=document.getElementById('popupDesc');
-  const dateEl=document.getElementById('popupDate');
-  const isDeadline=(ev.type||'').toLowerCase().includes('deadline');
-  overlay.classList.remove('event','deadline');
-  overlay.classList.add(isDeadline?'deadline':'event');
-  tag.textContent=isDeadline?'⚠ Deadline Today':'🎉 Upcoming Event';
-  title.textContent=ev.title||'Untitled';
-  desc.textContent=ev.details||'';
-  dateEl.textContent=MONTH_NAMES_FULL[ev.date.getMonth()]+' '+ev.date.getDate()+', '+ev.date.getFullYear();
-  if(isDeadline) spawnWarnings(bg); else spawnBubbles(bg);
-  requestAnimationFrame(()=>overlay.classList.add('show'));
-}
-function hidePopup(){
-  document.getElementById('popupOverlay').classList.remove('show');
-}
-document.getElementById('popupClose').addEventListener('click',hidePopup);
-document.getElementById('popupOverlay').addEventListener('click',e=>{
-  if(e.target.id==='popupOverlay') hidePopup();
-});
-
-let popupQueue=[];
-function showNextInQueue(){
-  if(!popupQueue.length) return;
-  const ev=popupQueue.shift();
-  showPopup(ev);
-  const onHide=()=>{
-    const ov=document.getElementById('popupOverlay');
-    if(!ov.classList.contains('show')){
-      ov.removeEventListener('transitionend',onHide);
-      setTimeout(showNextInQueue,400);
-    }
-  };
-  document.getElementById('popupOverlay').addEventListener('transitionend',onHide);
-}
-
-function checkTodayPopup(events){
-  const now=new Date();
-  const matches=events.filter(ev=>sameDay(ev.date,now));
-  const fresh=matches.filter(ev=>{
-    const key=ev.date.toDateString()+'|'+ev.title+'|'+ev.type;
-    if(popupShownKeys.has(key)) return false;
-    popupShownKeys.add(key);
-    return true;
-  });
-  if(!fresh.length) return;
-  // Deadlines first
-  fresh.sort((a,b)=>{
-    const da=(a.type||'').toLowerCase().includes('deadline')?0:1;
-    const db=(b.type||'').toLowerCase().includes('deadline')?0:1;
-    return da-db;
-  });
-  const wasEmpty=popupQueue.length===0 && !document.getElementById('popupOverlay').classList.contains('show');
-  popupQueue.push(...fresh);
-  if(wasEmpty) showNextInQueue();
-}
-
-
 loadUpcomingEvents();
 if(upcomingTimer) clearInterval(upcomingTimer);
 upcomingTimer=setInterval(cycleUpcoming,5000);
 setInterval(loadUpcomingEvents, 5*60*1000); // refresh every 5 min
 </script>
-
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup-bg" id="popupBg"></div>
-  <div class="popup-content">
-    <div class="popup-tag" id="popupTag">Upcoming Event</div>
-    <div class="popup-title" id="popupTitle">Event Name</div>
-    <div class="popup-desc" id="popupDesc"></div>
-    <div class="popup-date" id="popupDate"></div>
-    <button class="popup-close" id="popupClose">Dismiss</button>
-  </div>
-</div>
-
 </body>
 </html>
