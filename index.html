@@ -1045,76 +1045,46 @@ function cycleUpcoming(){
   renderUpcoming();
 }
 
-function processSheetRows(rows, hasHeader){
-  let typeIdx=0, dateIdx=1, titleIdx=2, detailIdx=3;
-  let dataRows=rows;
-  if(hasHeader){
+async function loadUpcomingEvents(){
+  try{
+    const res=await fetch(SHEET_CSV_URL,{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const rows=parseCSV(text).filter(r=>r.length && r.some(c=>c && c.trim()));
+    if(!rows.length){ upcomingEvents=[]; renderUpcoming(); return; }
     const header=rows[0].map(c=>(c||'').toLowerCase());
-    typeIdx=header.findIndex(h=>h.includes('type'));
-    dateIdx=header.findIndex(h=>h.includes('date'));
-    titleIdx=header.findIndex(h=>h.includes('event')||h.includes('title')||h.includes('name'));
-    detailIdx=header.findIndex(h=>h.includes('detail')||h.includes('description')||h.includes('desc'));
-    dataRows=rows.slice(1);
+    let typeIdx=header.findIndex(h=>h.includes('type'));
+    let dateIdx=header.findIndex(h=>h.includes('date'));
+    let titleIdx=header.findIndex(h=>h.includes('event')||h.includes('title')||h.includes('name'));
+    let detailIdx=header.findIndex(h=>h.includes('detail')||h.includes('description')||h.includes('desc'));
+    let dataRows=rows.slice(1);
     if(dateIdx===-1){ typeIdx=0; dateIdx=1; titleIdx=2; detailIdx=3; dataRows=rows; }
+    const today=new Date(); today.setHours(0,0,0,0);
+    const weekAhead=new Date(today); weekAhead.setDate(weekAhead.getDate()+7);
+    const allEvents=[]; const upcomingList=[];
+    for(const r of dataRows){
+      const d=parseSheetDate(r[dateIdx]);
+      if(!d) continue;
+      const ev={
+        date:d,
+        type:(typeIdx>=0?(r[typeIdx]||''):'').trim(),
+        title:(r[titleIdx]||'').trim(),
+        details:(detailIdx>=0?(r[detailIdx]||''):'').trim()
+      };
+      allEvents.push(ev);
+      if(d>=today && d<=weekAhead) upcomingList.push(ev);
+    }
+    upcomingList.sort((a,b)=>a.date-b.date);
+    upcomingEvents=upcomingList;
+    upcomingIndex=0;
+    renderUpcoming();
+    checkTodayPopup(allEvents);
+  }catch(err){
+    console.error('Failed to load events:',err);
+    document.getElementById('upcomingTitle').textContent='Unable to load events';
+    document.getElementById('upcomingDesc').textContent='Make sure the Google Sheet is shared as "Anyone with the link".';
+    document.getElementById('upcomingRight').style.display='none';
   }
-  const today=new Date(); today.setHours(0,0,0,0);
-  const weekAhead=new Date(today); weekAhead.setDate(weekAhead.getDate()+7);
-  const allEvents=[]; const upcomingList=[];
-  for(const r of dataRows){
-    const d=parseSheetDate(r[dateIdx]);
-    if(!d) continue;
-    const ev={
-      date:d,
-      type:(typeIdx>=0?(r[typeIdx]||''):'').trim(),
-      title:(r[titleIdx]||'').trim(),
-      details:(detailIdx>=0?(r[detailIdx]||''):'').trim()
-    };
-    allEvents.push(ev);
-    if(d>=today && d<=weekAhead) upcomingList.push(ev);
-  }
-  upcomingList.sort((a,b)=>a.date-b.date);
-  upcomingEvents=upcomingList;
-  upcomingIndex=0;
-  renderUpcoming();
-  checkTodayPopup(allEvents);
-}
-
-function showSheetError(){
-  document.getElementById('upcomingTitle').textContent='Unable to load events';
-  document.getElementById('upcomingDesc').textContent='Make sure the Google Sheet is shared as "Anyone with the link".';
-  document.getElementById('upcomingRight').style.display='none';
-}
-
-function loadUpcomingEvents(){
-  // Use JSONP — Google's gviz endpoint doesn't send CORS headers, but does
-  // support a JSONP-style responseHandler callback that bypasses CORS entirely.
-  const cbName='__sheetCb_'+Math.random().toString(36).slice(2);
-  let done=false;
-  window[cbName]=function(resp){
-    done=true;
-    try{
-      if(!resp || !resp.table){ showSheetError(); return; }
-      const rows=(resp.table.rows||[]).map(r=>
-        (r.c||[]).map(c=>{
-          if(!c) return '';
-          if(c.f!=null) return String(c.f);
-          if(c.v!=null) return String(c.v);
-          return '';
-        })
-      ).filter(r=>r.some(v=>v && v.trim()));
-      // gviz already separates header into cols, so rows are data only
-      const cols=(resp.table.cols||[]).map(c=>(c.label||'').toLowerCase());
-      const headerRow=cols.some(c=>c);
-      processSheetRows(headerRow ? [cols, ...rows] : rows, headerRow);
-    }catch(e){ console.error('sheet parse',e); showSheetError(); }
-    delete window[cbName];
-    if(s.parentNode) s.parentNode.removeChild(s);
-  };
-  const s=document.createElement('script');
-  s.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cbName};out:json&_=`+Date.now();
-  s.onerror=function(){ if(!done){ console.error('sheet load failed'); showSheetError(); delete window[cbName]; } };
-  document.head.appendChild(s);
-  setTimeout(()=>{ if(!done){ console.warn('sheet load timed out'); showSheetError(); delete window[cbName]; } }, 15000);
 }
 
 
