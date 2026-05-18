@@ -359,9 +359,185 @@
     .calendar-grid { gap:3px; }
     .calendar-day { font-size:.7rem; }
   }
+
+  /* =================== Fullscreen Popups =================== */
+  .fs-overlay{
+    position:fixed; inset:0; z-index:9999;
+    display:none;
+    align-items:center; justify-content:center;
+    overflow:hidden;
+    opacity:0;
+    transition:opacity .35s ease;
+  }
+  .fs-overlay.show{ display:flex; opacity:1; }
+  .fs-close{
+    position:absolute; top:22px; right:26px;
+    width:44px; height:44px; border-radius:999px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.35);
+    color:#fff; font-size:1.4rem; font-weight:700;
+    cursor:pointer; backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:3;
+    transition:transform .15s, background .15s;
+  }
+  .fs-close:hover{ transform:scale(1.08); background:rgba(255,255,255,.3); }
+  .fs-content{
+    position:relative; z-index:2;
+    text-align:center; padding:40px 28px;
+    max-width:min(900px, 92vw);
+    animation: fsPop .6s cubic-bezier(.2,.9,.3,1.2) both;
+  }
+  @keyframes fsPop{
+    0%{ transform:scale(.6); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .fs-tag{
+    display:inline-block;
+    padding:8px 20px; border-radius:999px;
+    font-size:.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .fs-title{
+    font-size:clamp(2.5rem, 7vw, 5.5rem);
+    font-weight:900; letter-spacing:-2px; line-height:1.05;
+    margin-bottom:18px;
+  }
+  .fs-date{
+    font-size:1.15rem; font-weight:600; opacity:.9;
+    margin-bottom:10px;
+  }
+  .fs-desc{
+    font-size:1.05rem; font-weight:500; opacity:.85;
+    max-width:640px; margin:0 auto; line-height:1.5;
+  }
+
+  /* ---------- Event (festive) ---------- */
+  #eventOverlay{
+    background:
+      radial-gradient(1200px 700px at 20% 15%, rgba(255,182,193,.55), transparent 60%),
+      radial-gradient(1100px 700px at 85% 80%, rgba(168,216,255,.55), transparent 60%),
+      radial-gradient(900px 600px at 50% 100%, rgba(255,236,179,.5), transparent 60%),
+      linear-gradient(180deg, #fff7fb 0%, #eaf4ff 60%, #fff 100%);
+    color:#1a1a2e;
+  }
+  #eventOverlay .fs-tag{
+    background:linear-gradient(90deg,#ff7eb9,#7afcff);
+    color:#fff;
+    box-shadow:0 8px 24px -10px rgba(255,126,185,.7);
+  }
+  #eventOverlay .fs-title{
+    background:linear-gradient(90deg,#ff5fa2 0%,#7c4dff 50%,#00bcd4 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 4px 30px rgba(124,77,255,.15);
+  }
+  #eventOverlay .fs-close{
+    background:rgba(0,0,0,.08); border-color:rgba(0,0,0,.15); color:#1a1a2e;
+  }
+  #eventOverlay .fs-close:hover{ background:rgba(0,0,0,.15); }
+
+  .bubble{
+    position:absolute; bottom:-120px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.25) 55%, rgba(255,255,255,0) 70%);
+    box-shadow: inset 0 0 24px rgba(255,255,255,.6), 0 8px 24px rgba(124,77,255,.15);
+    animation: floatUp linear infinite;
+    z-index:1;
+    pointer-events:none;
+  }
+  .bubble.pink   { background:radial-gradient(circle at 30% 30%, #fff, #ffb6d5 60%, rgba(255,182,213,0) 75%); }
+  .bubble.blue   { background:radial-gradient(circle at 30% 30%, #fff, #a8dcff 60%, rgba(168,220,255,0) 75%); }
+  .bubble.yellow { background:radial-gradient(circle at 30% 30%, #fff, #ffe88a 60%, rgba(255,232,138,0) 75%); }
+  .bubble.purple { background:radial-gradient(circle at 30% 30%, #fff, #d6b8ff 60%, rgba(214,184,255,0) 75%); }
+  .bubble.mint   { background:radial-gradient(circle at 30% 30%, #fff, #b8f5d6 60%, rgba(184,245,214,0) 75%); }
+  @keyframes floatUp{
+    0%   { transform:translateY(0) translateX(0) scale(1); opacity:0; }
+    10%  { opacity:.9; }
+    50%  { transform:translateY(-55vh) translateX(30px) scale(1.05); }
+    100% { transform:translateY(-115vh) translateX(-20px) scale(.9); opacity:0; }
+  }
+
+  /* ---------- Deadline (alert) ---------- */
+  #deadlineOverlay{
+    background:
+      radial-gradient(1200px 700px at 30% 20%, rgba(255,0,0,.35), transparent 60%),
+      radial-gradient(1000px 700px at 80% 80%, rgba(120,0,0,.6), transparent 60%),
+      linear-gradient(180deg, #2a0606 0%, #4a0808 50%, #1a0000 100%);
+    color:#fff;
+    animation: alertPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes alertPulse{
+    0%,100%{ box-shadow: inset 0 0 120px rgba(255,30,30,.4); }
+    50%   { box-shadow: inset 0 0 200px rgba(255,30,30,.75); }
+  }
+  #deadlineOverlay .fs-tag{
+    background:#ff2d2d; color:#fff;
+    box-shadow:0 0 30px rgba(255,45,45,.8);
+    animation: tagBlink 1s steps(2,end) infinite;
+  }
+  @keyframes tagBlink{ 50%{ opacity:.55; } }
+  #deadlineOverlay .fs-title{
+    color:#fff;
+    text-shadow: 0 0 18px rgba(255,80,80,.85), 0 0 40px rgba(255,0,0,.6);
+  }
+  #deadlineOverlay .fs-close{ background:rgba(255,255,255,.15); }
+
+  .warn-tri{
+    position:absolute;
+    width:0; height:0;
+    border-left: var(--sz, 40px) solid transparent;
+    border-right: var(--sz, 40px) solid transparent;
+    border-bottom: calc(var(--sz, 40px) * 1.7) solid #ff2d2d;
+    filter: drop-shadow(0 0 12px rgba(255,45,45,.85));
+    opacity:.85;
+    animation: warnFloat 5s ease-in-out infinite, warnBlink 1.2s ease-in-out infinite;
+    z-index:1;
+    pointer-events:none;
+  }
+  .warn-tri::after{
+    content:"!";
+    position:absolute;
+    left:50%; top:calc(var(--sz, 40px) * 0.55);
+    transform:translateX(-50%);
+    color:#fff;
+    font-family:'Inter',sans-serif;
+    font-weight:900;
+    font-size:calc(var(--sz, 40px) * 0.95);
+    line-height:1;
+    text-shadow:0 0 6px rgba(0,0,0,.4);
+  }
+  @keyframes warnFloat{
+    0%,100%{ transform: translateY(0) rotate(var(--rot,0deg)); }
+    50%   { transform: translateY(-22px) rotate(calc(var(--rot,0deg) + 6deg)); }
+  }
+  @keyframes warnBlink{
+    0%,100%{ opacity:.95; filter: drop-shadow(0 0 14px rgba(255,60,60,1)); }
+    50%   { opacity:.55; filter: drop-shadow(0 0 6px rgba(255,30,30,.5)); }
+  }
 </style>
 </head>
 <body>
+<!-- =================== Fullscreen Popups =================== -->
+<div class="fs-overlay" id="eventOverlay" role="dialog" aria-modal="true" aria-labelledby="eventTitleEl">
+  <button class="fs-close" id="eventCloseBtn" aria-label="Close">×</button>
+  <div class="fs-content">
+    <div class="fs-tag">🎉 Upcoming Event Today 🎉</div>
+    <div class="fs-title" id="eventTitleEl">Event</div>
+    <div class="fs-date" id="eventDateEl"></div>
+    <div class="fs-desc" id="eventDescEl"></div>
+  </div>
+</div>
+
+<div class="fs-overlay" id="deadlineOverlay" role="alertdialog" aria-modal="true" aria-labelledby="deadlineTitleEl">
+  <button class="fs-close" id="deadlineCloseBtn" aria-label="Close">×</button>
+  <div class="fs-content">
+    <div class="fs-tag">⚠ Deadline Today ⚠</div>
+    <div class="fs-title" id="deadlineTitleEl">Deadline</div>
+    <div class="fs-date" id="deadlineDateEl"></div>
+    <div class="fs-desc" id="deadlineDescEl"></div>
+  </div>
+</div>
+
 <div class="container">
   <div class="header">
     <h1>Calendar Schedule</h1>
@@ -942,6 +1118,7 @@ async function loadUpcomingEvents(){
     upcomingEvents=events;
     upcomingIndex=0;
     renderUpcoming();
+    checkTodayPopups(events);
   }catch(err){
     console.error('Failed to load events:',err);
     document.getElementById('upcomingTitle').textContent='Unable to load events';
@@ -954,6 +1131,115 @@ loadUpcomingEvents();
 if(upcomingTimer) clearInterval(upcomingTimer);
 upcomingTimer=setInterval(cycleUpcoming,5000);
 setInterval(loadUpcomingEvents, 5*60*1000); // refresh every 5 min
+
+/* ================= Fullscreen Today Popups ================= */
+const eventOverlay    = document.getElementById('eventOverlay');
+const deadlineOverlay = document.getElementById('deadlineOverlay');
+document.getElementById('eventCloseBtn').addEventListener('click',()=>closeOverlay(eventOverlay));
+document.getElementById('deadlineCloseBtn').addEventListener('click',()=>closeOverlay(deadlineOverlay));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeOverlay(eventOverlay);
+    closeOverlay(deadlineOverlay);
+  }
+});
+
+const _shownTodayKeys = new Set(); // avoid re-popping same event after refresh
+
+function isSameDay(a,b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+function checkTodayPopups(events){
+  const now=new Date();
+  const todays=events.filter(ev=>isSameDay(ev.date, now));
+  if(!todays.length) return;
+  // Prefer showing a deadline first (more urgent)
+  const deadline = todays.find(ev=>/deadline/i.test(ev.type||''));
+  const eventItem = todays.find(ev=>ev!==deadline);
+  if(deadline){
+    const key='D|'+deadline.title+'|'+fmt(deadline.date);
+    if(!_shownTodayKeys.has(key)){ _shownTodayKeys.add(key); openDeadline(deadline); }
+  }
+  if(eventItem){
+    const key='E|'+eventItem.title+'|'+fmt(eventItem.date);
+    if(!_shownTodayKeys.has(key)){
+      _shownTodayKeys.add(key);
+      // If a deadline is showing, delay event slightly so they don't stack
+      setTimeout(()=>openEvent(eventItem), deadline?400:0);
+    }
+  }
+}
+
+function formatLongDate(d){
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  return `${days[d.getDay()]}, ${MONTH_NAMES_FULL[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function openEvent(ev){
+  document.getElementById('eventTitleEl').textContent = ev.title || 'Upcoming Event';
+  document.getElementById('eventDateEl').textContent  = formatLongDate(ev.date);
+  document.getElementById('eventDescEl').textContent  = ev.details || '';
+  spawnBubbles(eventOverlay, 28);
+  showOverlay(eventOverlay);
+}
+
+function openDeadline(ev){
+  document.getElementById('deadlineTitleEl').textContent = ev.title || 'Deadline';
+  document.getElementById('deadlineDateEl').textContent  = formatLongDate(ev.date);
+  document.getElementById('deadlineDescEl').textContent  = ev.details || '';
+  spawnWarnings(deadlineOverlay, 22);
+  showOverlay(deadlineOverlay);
+}
+
+function showOverlay(el){
+  el.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeOverlay(el){
+  if(!el.classList.contains('show')) return;
+  el.classList.remove('show');
+  // clear decorative children (keep close btn + content)
+  el.querySelectorAll('.bubble,.warn-tri').forEach(n=>n.remove());
+  if(!eventOverlay.classList.contains('show') && !deadlineOverlay.classList.contains('show')){
+    document.body.style.overflow='';
+  }
+}
+
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+function spawnBubbles(container, count){
+  const palette=['pink','blue','yellow','purple','mint'];
+  for(let i=0;i<count;i++){
+    const b=document.createElement('div');
+    b.className='bubble '+palette[i%palette.length];
+    const size=rand(28,110);
+    b.style.width=size+'px';
+    b.style.height=size+'px';
+    b.style.left=rand(-2,100)+'%';
+    const dur=rand(7,16);
+    b.style.animationDuration=dur+'s';
+    b.style.animationDelay=(-rand(0,dur))+'s';
+    b.style.opacity=rand(.55,.95);
+    container.appendChild(b);
+  }
+}
+
+function spawnWarnings(container, count){
+  for(let i=0;i<count;i++){
+    const t=document.createElement('div');
+    t.className='warn-tri';
+    const size=rand(28,80);
+    t.style.setProperty('--sz', size+'px');
+    t.style.setProperty('--rot', rand(-15,15)+'deg');
+    t.style.left=rand(2,94)+'%';
+    t.style.top=rand(4,88)+'%';
+    const dur=rand(3.5,6.5);
+    t.style.animationDuration=dur+'s, '+rand(.9,1.6)+'s';
+    t.style.animationDelay=(-rand(0,dur))+'s, '+(-rand(0,1.2))+'s';
+    container.appendChild(t);
+  }
+}
 </script>
 </body>
 </html>
