@@ -360,135 +360,136 @@
     .calendar-day { font-size:.7rem; }
   }
 
-  /* =================== Fullscreen Popups =================== */
+  /* =================== Centered Popups (theme-matched) =================== */
   .fs-overlay{
     position:fixed; inset:0; z-index:9999;
     display:none;
     align-items:center; justify-content:center;
-    overflow:hidden;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(6px);
     opacity:0;
-    transition:opacity .35s ease;
+    transition:opacity .25s ease;
+    padding:20px;
   }
   .fs-overlay.show{ display:flex; opacity:1; }
-  .fs-close{
-    position:absolute; top:22px; right:26px;
-    width:44px; height:44px; border-radius:999px;
-    background:rgba(255,255,255,.18);
-    border:1px solid rgba(255,255,255,.35);
-    color:#fff; font-size:1.4rem; font-weight:700;
-    cursor:pointer; backdrop-filter:blur(8px);
-    display:flex; align-items:center; justify-content:center;
-    z-index:3;
-    transition:transform .15s, background .15s;
-  }
-  .fs-close:hover{ transform:scale(1.08); background:rgba(255,255,255,.3); }
+
   .fs-content{
-    position:relative; z-index:2;
-    text-align:center; padding:40px 28px;
-    max-width:min(900px, 92vw);
-    animation: fsPop .6s cubic-bezier(.2,.9,.3,1.2) both;
+    position:relative;
+    text-align:center;
+    padding:40px 36px 36px;
+    width:min(520px, 100%);
+    border-radius:22px;
+    background:linear-gradient(180deg, #0c0c0c 0%, #060606 100%);
+    border:1px solid var(--border-strong);
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.02) inset;
+    overflow:hidden;
+    animation: fsPop .45s cubic-bezier(.2,.9,.3,1.2) both;
   }
   @keyframes fsPop{
-    0%{ transform:scale(.6); opacity:0; }
+    0%{ transform:scale(.85); opacity:0; }
     100%{ transform:scale(1); opacity:1; }
   }
+  .fs-close{
+    position:absolute; top:14px; right:14px;
+    width:34px; height:34px; border-radius:999px;
+    background:#161616;
+    border:1px solid var(--border-strong);
+    color:#e5e5e5; font-size:1.1rem; font-weight:700;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    z-index:3;
+    transition:transform .15s, background .15s, border-color .15s;
+  }
+  .fs-close:hover{ transform:scale(1.08); background:#1f1f1f; border-color:#3a3a3a; }
+
+  .fs-inner{ position:relative; z-index:2; }
   .fs-tag{
     display:inline-block;
-    padding:8px 20px; border-radius:999px;
-    font-size:.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-    margin-bottom:22px;
-  }
-  .fs-title{
-    font-size:clamp(2.5rem, 7vw, 5.5rem);
-    font-weight:900; letter-spacing:-2px; line-height:1.05;
+    padding:6px 16px; border-radius:999px;
+    font-size:.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
     margin-bottom:18px;
   }
+  .fs-title{
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    font-weight:800; letter-spacing:-1px; line-height:1.1;
+    margin-bottom:14px;
+  }
   .fs-date{
-    font-size:1.15rem; font-weight:600; opacity:.9;
+    font-size:.95rem; font-weight:600; color:#9ca3af;
     margin-bottom:10px;
   }
   .fs-desc{
-    font-size:1.05rem; font-weight:500; opacity:.85;
-    max-width:640px; margin:0 auto; line-height:1.5;
+    font-size:.9rem; font-weight:500; color:#d4d4d4;
+    line-height:1.5;
   }
 
-  /* ---------- Event (festive) ---------- */
-  #eventOverlay{
+  /* ---------- Event (festive, green theme) ---------- */
+  #eventOverlay .fs-content{
     background:
-      radial-gradient(1200px 700px at 20% 15%, rgba(255,182,193,.55), transparent 60%),
-      radial-gradient(1100px 700px at 85% 80%, rgba(168,216,255,.55), transparent 60%),
-      radial-gradient(900px 600px at 50% 100%, rgba(255,236,179,.5), transparent 60%),
-      linear-gradient(180deg, #fff7fb 0%, #eaf4ff 60%, #fff 100%);
-    color:#1a1a2e;
+      radial-gradient(500px 200px at 50% -10%, rgba(34,197,94,.18), transparent 60%),
+      linear-gradient(180deg, #0c0c0c 0%, #060606 100%);
+    border-color:#1f5a32;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.9), 0 0 60px -10px rgba(34,197,94,.35);
   }
   #eventOverlay .fs-tag{
-    background:linear-gradient(90deg,#ff7eb9,#7afcff);
-    color:#fff;
-    box-shadow:0 8px 24px -10px rgba(255,126,185,.7);
+    background:var(--green); color:#fff;
+    box-shadow:0 6px 18px -6px var(--green-glow), inset 0 1px 0 rgba(255,255,255,.25);
   }
   #eventOverlay .fs-title{
-    background:linear-gradient(90deg,#ff5fa2 0%,#7c4dff 50%,#00bcd4 100%);
+    background:linear-gradient(180deg,#fff 0%, #c9c9c9 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    text-shadow:0 4px 30px rgba(124,77,255,.15);
   }
-  #eventOverlay .fs-close{
-    background:rgba(0,0,0,.08); border-color:rgba(0,0,0,.15); color:#1a1a2e;
-  }
-  #eventOverlay .fs-close:hover{ background:rgba(0,0,0,.15); }
 
   .bubble{
-    position:absolute; bottom:-120px;
+    position:absolute; bottom:-30px;
     border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.25) 55%, rgba(255,255,255,0) 70%);
-    box-shadow: inset 0 0 24px rgba(255,255,255,.6), 0 8px 24px rgba(124,77,255,.15);
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.5), rgba(34,197,94,.5) 55%, rgba(34,197,94,0) 75%);
     animation: floatUp linear infinite;
     z-index:1;
     pointer-events:none;
   }
-  .bubble.pink   { background:radial-gradient(circle at 30% 30%, #fff, #ffb6d5 60%, rgba(255,182,213,0) 75%); }
-  .bubble.blue   { background:radial-gradient(circle at 30% 30%, #fff, #a8dcff 60%, rgba(168,220,255,0) 75%); }
-  .bubble.yellow { background:radial-gradient(circle at 30% 30%, #fff, #ffe88a 60%, rgba(255,232,138,0) 75%); }
-  .bubble.purple { background:radial-gradient(circle at 30% 30%, #fff, #d6b8ff 60%, rgba(214,184,255,0) 75%); }
-  .bubble.mint   { background:radial-gradient(circle at 30% 30%, #fff, #b8f5d6 60%, rgba(184,245,214,0) 75%); }
+  .bubble.cyan  { background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.5), rgba(0,212,255,.45) 55%, rgba(0,212,255,0) 75%); }
+  .bubble.lime  { background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.5), rgba(132,225,103,.5) 55%, rgba(132,225,103,0) 75%); }
+  .bubble.white { background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), rgba(255,255,255,.2) 55%, rgba(255,255,255,0) 75%); }
   @keyframes floatUp{
     0%   { transform:translateY(0) translateX(0) scale(1); opacity:0; }
-    10%  { opacity:.9; }
-    50%  { transform:translateY(-55vh) translateX(30px) scale(1.05); }
-    100% { transform:translateY(-115vh) translateX(-20px) scale(.9); opacity:0; }
+    15%  { opacity:.9; }
+    100% { transform:translateY(-580px) translateX(20px) scale(.85); opacity:0; }
   }
 
-  /* ---------- Deadline (alert) ---------- */
-  #deadlineOverlay{
+  /* ---------- Deadline (alert, red theme) ---------- */
+  #deadlineOverlay .fs-content{
     background:
-      radial-gradient(1200px 700px at 30% 20%, rgba(255,0,0,.35), transparent 60%),
-      radial-gradient(1000px 700px at 80% 80%, rgba(120,0,0,.6), transparent 60%),
-      linear-gradient(180deg, #2a0606 0%, #4a0808 50%, #1a0000 100%);
-    color:#fff;
-    animation: alertPulse 1.6s ease-in-out infinite;
+      radial-gradient(500px 200px at 50% -10%, rgba(239,68,68,.22), transparent 60%),
+      linear-gradient(180deg, #1a0606 0%, #0a0303 100%);
+    border-color:#6b1010;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.9), 0 0 60px -10px rgba(239,68,68,.45);
+    animation: fsPop .45s cubic-bezier(.2,.9,.3,1.2) both, alertPulse 1.8s ease-in-out infinite .45s;
   }
   @keyframes alertPulse{
-    0%,100%{ box-shadow: inset 0 0 120px rgba(255,30,30,.4); }
-    50%   { box-shadow: inset 0 0 200px rgba(255,30,30,.75); }
+    0%,100%{ box-shadow:0 30px 80px -20px rgba(0,0,0,.9), 0 0 50px -10px rgba(239,68,68,.4); }
+    50%   { box-shadow:0 30px 80px -20px rgba(0,0,0,.9), 0 0 90px -10px rgba(239,68,68,.85); }
   }
   #deadlineOverlay .fs-tag{
-    background:#ff2d2d; color:#fff;
-    box-shadow:0 0 30px rgba(255,45,45,.8);
+    background:var(--red); color:#fff;
+    box-shadow:0 0 24px rgba(239,68,68,.7);
     animation: tagBlink 1s steps(2,end) infinite;
   }
   @keyframes tagBlink{ 50%{ opacity:.55; } }
   #deadlineOverlay .fs-title{
     color:#fff;
-    text-shadow: 0 0 18px rgba(255,80,80,.85), 0 0 40px rgba(255,0,0,.6);
+    text-shadow: 0 0 14px rgba(255,80,80,.75), 0 0 30px rgba(239,68,68,.5);
   }
-  #deadlineOverlay .fs-close{ background:rgba(255,255,255,.15); }
+  #deadlineOverlay .fs-close{ background:#2a0a0a; border-color:#6b1010; color:#fff; }
+  #deadlineOverlay .fs-close:hover{ background:#3d0a0a; border-color:#8b1515; }
 
   .warn-tri{
     position:absolute;
     width:0; height:0;
-    border-left: var(--sz, 40px) solid transparent;
-    border-right: var(--sz, 40px) solid transparent;
-    border-bottom: calc(var(--sz, 40px) * 1.7) solid #ff2d2d;
-    filter: drop-shadow(0 0 12px rgba(255,45,45,.85));
+    border-left: var(--sz, 22px) solid transparent;
+    border-right: var(--sz, 22px) solid transparent;
+    border-bottom: calc(var(--sz, 22px) * 1.7) solid var(--red);
+    filter: drop-shadow(0 0 8px rgba(239,68,68,.85));
     opacity:.85;
     animation: warnFloat 5s ease-in-out infinite, warnBlink 1.2s ease-in-out infinite;
     z-index:1;
@@ -497,44 +498,48 @@
   .warn-tri::after{
     content:"!";
     position:absolute;
-    left:50%; top:calc(var(--sz, 40px) * 0.55);
+    left:50%; top:calc(var(--sz, 22px) * 0.55);
     transform:translateX(-50%);
     color:#fff;
     font-family:'Inter',sans-serif;
     font-weight:900;
-    font-size:calc(var(--sz, 40px) * 0.95);
+    font-size:calc(var(--sz, 22px) * 0.95);
     line-height:1;
     text-shadow:0 0 6px rgba(0,0,0,.4);
   }
   @keyframes warnFloat{
     0%,100%{ transform: translateY(0) rotate(var(--rot,0deg)); }
-    50%   { transform: translateY(-22px) rotate(calc(var(--rot,0deg) + 6deg)); }
+    50%   { transform: translateY(-12px) rotate(calc(var(--rot,0deg) + 6deg)); }
   }
   @keyframes warnBlink{
-    0%,100%{ opacity:.95; filter: drop-shadow(0 0 14px rgba(255,60,60,1)); }
-    50%   { opacity:.55; filter: drop-shadow(0 0 6px rgba(255,30,30,.5)); }
+    0%,100%{ opacity:.95; }
+    50%   { opacity:.45; }
   }
 </style>
 </head>
 <body>
 <!-- =================== Fullscreen Popups =================== -->
 <div class="fs-overlay" id="eventOverlay" role="dialog" aria-modal="true" aria-labelledby="eventTitleEl">
-  <button class="fs-close" id="eventCloseBtn" aria-label="Close">×</button>
-  <div class="fs-content">
-    <div class="fs-tag">🎉 Upcoming Event Today 🎉</div>
-    <div class="fs-title" id="eventTitleEl">Event</div>
-    <div class="fs-date" id="eventDateEl"></div>
-    <div class="fs-desc" id="eventDescEl"></div>
+  <div class="fs-content" id="eventContent">
+    <button class="fs-close" id="eventCloseBtn" aria-label="Close">×</button>
+    <div class="fs-inner">
+      <div class="fs-tag">🎉 Upcoming Event Today 🎉</div>
+      <div class="fs-title" id="eventTitleEl">Event</div>
+      <div class="fs-date" id="eventDateEl"></div>
+      <div class="fs-desc" id="eventDescEl"></div>
+    </div>
   </div>
 </div>
 
 <div class="fs-overlay" id="deadlineOverlay" role="alertdialog" aria-modal="true" aria-labelledby="deadlineTitleEl">
-  <button class="fs-close" id="deadlineCloseBtn" aria-label="Close">×</button>
-  <div class="fs-content">
-    <div class="fs-tag">⚠ Deadline Today ⚠</div>
-    <div class="fs-title" id="deadlineTitleEl">Deadline</div>
-    <div class="fs-date" id="deadlineDateEl"></div>
-    <div class="fs-desc" id="deadlineDescEl"></div>
+  <div class="fs-content" id="deadlineContent">
+    <button class="fs-close" id="deadlineCloseBtn" aria-label="Close">×</button>
+    <div class="fs-inner">
+      <div class="fs-tag">⚠ Deadline Today ⚠</div>
+      <div class="fs-title" id="deadlineTitleEl">Deadline</div>
+      <div class="fs-date" id="deadlineDateEl"></div>
+      <div class="fs-desc" id="deadlineDescEl"></div>
+    </div>
   </div>
 </div>
 
@@ -1180,7 +1185,7 @@ function openEvent(ev){
   document.getElementById('eventTitleEl').textContent = ev.title || 'Upcoming Event';
   document.getElementById('eventDateEl').textContent  = formatLongDate(ev.date);
   document.getElementById('eventDescEl').textContent  = ev.details || '';
-  spawnBubbles(eventOverlay, 28);
+  spawnBubbles(document.getElementById('eventContent'), 16);
   showOverlay(eventOverlay);
 }
 
@@ -1188,7 +1193,7 @@ function openDeadline(ev){
   document.getElementById('deadlineTitleEl').textContent = ev.title || 'Deadline';
   document.getElementById('deadlineDateEl').textContent  = formatLongDate(ev.date);
   document.getElementById('deadlineDescEl').textContent  = ev.details || '';
-  spawnWarnings(deadlineOverlay, 22);
+  spawnWarnings(document.getElementById('deadlineContent'), 12);
   showOverlay(deadlineOverlay);
 }
 
@@ -1199,7 +1204,6 @@ function showOverlay(el){
 function closeOverlay(el){
   if(!el.classList.contains('show')) return;
   el.classList.remove('show');
-  // clear decorative children (keep close btn + content)
   el.querySelectorAll('.bubble,.warn-tri').forEach(n=>n.remove());
   if(!eventOverlay.classList.contains('show') && !deadlineOverlay.classList.contains('show')){
     document.body.style.overflow='';
@@ -1209,18 +1213,18 @@ function closeOverlay(el){
 function rand(min,max){ return Math.random()*(max-min)+min; }
 
 function spawnBubbles(container, count){
-  const palette=['pink','blue','yellow','purple','mint'];
+  const palette=['','cyan','lime','white'];
   for(let i=0;i<count;i++){
     const b=document.createElement('div');
-    b.className='bubble '+palette[i%palette.length];
-    const size=rand(28,110);
+    b.className=('bubble '+palette[i%palette.length]).trim();
+    const size=rand(14,46);
     b.style.width=size+'px';
     b.style.height=size+'px';
     b.style.left=rand(-2,100)+'%';
-    const dur=rand(7,16);
+    const dur=rand(5,11);
     b.style.animationDuration=dur+'s';
     b.style.animationDelay=(-rand(0,dur))+'s';
-    b.style.opacity=rand(.55,.95);
+    b.style.opacity=rand(.45,.85);
     container.appendChild(b);
   }
 }
@@ -1229,7 +1233,7 @@ function spawnWarnings(container, count){
   for(let i=0;i<count;i++){
     const t=document.createElement('div');
     t.className='warn-tri';
-    const size=rand(28,80);
+    const size=rand(14,28);
     t.style.setProperty('--sz', size+'px');
     t.style.setProperty('--rot', rand(-15,15)+'deg');
     t.style.left=rand(2,94)+'%';
