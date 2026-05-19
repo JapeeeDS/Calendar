@@ -1081,6 +1081,15 @@ function renderUpcoming(){
   dayEl.textContent=String(ev.date.getDate()).padStart(2,'0');
   yearEl.textContent=ev.date.getFullYear();
   monthEl.textContent=MONTH_NAMES_FULL[ev.date.getMonth()];
+  if(ev.link){
+    card.style.cursor='pointer';
+    card.title='Open link';
+    card.onclick=()=>window.open(ev.link,'_blank','noopener');
+  } else {
+    card.style.cursor='';
+    card.title='';
+    card.onclick=null;
+  }
   card.classList.remove('upcoming-fade');
   void card.offsetWidth;
   card.classList.add('upcoming-fade');
@@ -1105,8 +1114,9 @@ async function loadUpcomingEvents(){
     let titleIdx=header.findIndex(h=>h.includes('event')||h.includes('title')||h.includes('name'));
     let detailIdx=header.findIndex(h=>h.includes('detail')||h.includes('description')||h.includes('desc'));
     let typeIdx=header.findIndex(h=>h.includes('type'));
+    let linkIdx=header.findIndex(h=>h.includes('link')||h.includes('url'));
     let dataRows=rows.slice(1);
-    if(dateIdx===-1){ typeIdx=0; dateIdx=1; titleIdx=2; detailIdx=3; dataRows=rows; }
+    if(dateIdx===-1){ typeIdx=0; dateIdx=1; titleIdx=2; detailIdx=3; linkIdx=4; dataRows=rows; }
     const today=new Date(); today.setHours(0,0,0,0);
     const weekAhead=new Date(today); weekAhead.setDate(weekAhead.getDate()+7);
     const events=[];
@@ -1118,7 +1128,8 @@ async function loadUpcomingEvents(){
         date:d,
         title:(r[titleIdx]||'').trim(),
         details:(detailIdx>=0?(r[detailIdx]||''):'').trim(),
-        type:(typeIdx>=0?(r[typeIdx]||''):'').trim()
+        type:(typeIdx>=0?(r[typeIdx]||''):'').trim(),
+        link:(linkIdx>=0?(r[linkIdx]||''):'').trim()
       });
     }
     events.sort((a,b)=>a.date-b.date);
