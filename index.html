@@ -431,6 +431,32 @@
     font-size:.9rem; font-weight:500; color:#d4d4d4;
     line-height:1.5;
   }
+  .fs-link{
+    display:none;
+    margin-top:20px;
+    padding:10px 22px;
+    border-radius:999px;
+    font-size:.85rem; font-weight:700; letter-spacing:.5px;
+    text-decoration:none;
+    background:#161616;
+    border:1px solid var(--border-strong);
+    color:#fff;
+    cursor:pointer;
+    transition:transform .15s, background .15s, border-color .15s, box-shadow .15s;
+    position:relative; z-index:3;
+  }
+  .fs-link.show{ display:inline-block; }
+  .fs-link:hover{ transform:translateY(-1px); }
+  #eventOverlay .fs-link{
+    background:linear-gradient(180deg, #16a34a, #0f7a37);
+    border-color:#1f5a32;
+    box-shadow:0 6px 18px -6px var(--green-glow);
+  }
+  #eventOverlay .fs-link:hover{ background:linear-gradient(180deg, #22c55e, #16a34a); border-color:#2a7a45; }
+  #deadlineOverlay .fs-link{
+    background:#2a0a0a; border-color:#6b1010;
+  }
+  #deadlineOverlay .fs-link:hover{ background:#3d0a0a; border-color:#8b1515; }
 
   /* ---------- Event (festive, green theme) ---------- */
   #eventOverlay .fs-content{
@@ -536,6 +562,7 @@
       <div class="fs-title" id="eventTitleEl">Event</div>
       <div class="fs-date" id="eventDateEl"></div>
       <div class="fs-desc" id="eventDescEl"></div>
+      <a class="fs-link" id="eventLinkEl" target="_blank" rel="noopener">Link</a>
     </div>
   </div>
 </div>
@@ -548,6 +575,7 @@
       <div class="fs-title" id="deadlineTitleEl">Deadline</div>
       <div class="fs-date" id="deadlineDateEl"></div>
       <div class="fs-desc" id="deadlineDescEl"></div>
+      <a class="fs-link" id="deadlineLinkEl" target="_blank" rel="noopener">Link</a>
     </div>
   </div>
 </div>
@@ -1207,6 +1235,7 @@ function openEvent(ev){
   document.getElementById('eventTitleEl').textContent = ev.title || 'Upcoming Event';
   document.getElementById('eventDateEl').textContent  = formatLongDate(ev.date);
   document.getElementById('eventDescEl').textContent  = ev.details || '';
+  setLinkBtn('eventLinkEl', ev.link);
   spawnBubbles(document.getElementById('eventContent'), 16);
   showOverlay(eventOverlay);
 }
@@ -1215,8 +1244,16 @@ function openDeadline(ev){
   document.getElementById('deadlineTitleEl').textContent = ev.title || 'Deadline';
   document.getElementById('deadlineDateEl').textContent  = formatLongDate(ev.date);
   document.getElementById('deadlineDescEl').textContent  = ev.details || '';
+  setLinkBtn('deadlineLinkEl', ev.link);
   spawnWarnings(document.getElementById('deadlineContent'), 12);
   showOverlay(deadlineOverlay);
+}
+
+function setLinkBtn(id, url){
+  const el = document.getElementById(id);
+  const u = (url||'').trim();
+  if(u){ el.href = u; el.classList.add('show'); }
+  else { el.removeAttribute('href'); el.classList.remove('show'); }
 }
 
 function showOverlay(el){
