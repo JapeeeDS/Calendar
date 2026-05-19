@@ -339,6 +339,19 @@
     from { opacity:0; transform:translateY(6px); }
     to   { opacity:1; transform:translateY(0); }
   }
+  .upcoming-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:32px; height:32px; border-radius:999px;
+    background:#161616; border:1px solid var(--border-strong);
+    color:#e5e5e5; font-size:1rem; font-weight:700;
+    display:none; align-items:center; justify-content:center;
+    cursor:pointer; z-index:4;
+    transition:transform .15s, background .15s, border-color .15s;
+  }
+  .upcoming-card.has-multiple .upcoming-nav{ display:flex; }
+  .upcoming-nav:hover{ transform:translateY(-50%) scale(1.08); background:#1f1f1f; border-color:#3a7a4a; }
+  .upcoming-nav.prev{ left:8px; }
+  .upcoming-nav.next{ right:8px; }
 
   @media (max-width:1100px){
     .main-grid { grid-template-columns:1fr; }
@@ -634,6 +647,7 @@
       </div>
 
       <div class="upcoming-card" id="upcomingCard">
+        <button class="upcoming-nav prev" id="upcomingPrev" aria-label="Previous">‹</button>
         <div class="upcoming-left">
           <div class="upcoming-tag" id="upcomingTag">Upcoming Event!</div>
           <div class="upcoming-title" id="upcomingTitle">Loading…</div>
@@ -646,6 +660,7 @@
           </div>
           <div class="upcoming-month" id="upcomingMonth">Month</div>
         </div>
+        <button class="upcoming-nav next" id="upcomingNext" aria-label="Next">›</button>
       </div>
     </div>
 
@@ -1127,6 +1142,7 @@ function renderUpcoming(){
     card.classList.remove('is-clickable');
     card.onclick=null;
   }
+  card.classList.toggle('has-multiple', upcomingEvents.length>1);
   card.classList.remove('upcoming-fade');
   void card.offsetWidth;
   card.classList.add('upcoming-fade');
@@ -1137,6 +1153,16 @@ function cycleUpcoming(){
   upcomingIndex=(upcomingIndex+1)%upcomingEvents.length;
   renderUpcoming();
 }
+
+function stepUpcoming(delta){
+  if(upcomingEvents.length<=1) return;
+  upcomingIndex=(upcomingIndex+delta+upcomingEvents.length)%upcomingEvents.length;
+  renderUpcoming();
+  if(upcomingTimer) clearInterval(upcomingTimer);
+  upcomingTimer=setInterval(cycleUpcoming,5000);
+}
+document.getElementById('upcomingPrev').addEventListener('click',e=>{ e.stopPropagation(); stepUpcoming(-1); });
+document.getElementById('upcomingNext').addEventListener('click',e=>{ e.stopPropagation(); stepUpcoming(1); });
 
 async function loadUpcomingEvents(){
   try{
