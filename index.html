@@ -302,7 +302,14 @@
     min-height:140px;
     position:relative;
     overflow:hidden;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
   }
+  .upcoming-card.is-clickable:hover{
+    transform: translateY(-3px) scale(1.01);
+    border-color: rgba(34,197,94,.55);
+    box-shadow: 0 20px 50px -20px rgba(34,197,94,.45);
+  }
+  .upcoming-card.is-clickable:active{ transform: translateY(-1px) scale(1.005); }
   .upcoming-left { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
   .upcoming-tag { font-size:.78rem; font-weight:600; color:var(--muted); letter-spacing:.5px; }
   .upcoming-title {
@@ -1084,10 +1091,12 @@ function renderUpcoming(){
   if(ev.link){
     card.style.cursor='pointer';
     card.title='Open link';
+    card.classList.add('is-clickable');
     card.onclick=()=>window.open(ev.link,'_blank','noopener');
   } else {
     card.style.cursor='';
     card.title='';
+    card.classList.remove('is-clickable');
     card.onclick=null;
   }
   card.classList.remove('upcoming-fade');
