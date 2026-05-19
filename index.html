@@ -1240,9 +1240,12 @@ function checkTodayPopups(events){
   const now=new Date();
   const todays=events.filter(ev=>isSameDay(ev.date, now));
   if(!todays.length) return;
-  // Prefer showing a deadline first (more urgent)
-  const deadline = todays.find(ev=>/deadline/i.test(ev.type||''));
-  const eventItem = todays.find(ev=>ev!==deadline);
+  // Deadline-style popup (warning): "deadline" or "compliance"
+  // Bubble-style popup: "upcoming events" or "update"
+  const isDeadlineType = t => /deadline|compliance/i.test(t||'');
+  const isBubbleType   = t => /upcoming\s*event|update/i.test(t||'');
+  const deadline = todays.find(ev=>isDeadlineType(ev.type));
+  const eventItem = todays.find(ev=>ev!==deadline && (isBubbleType(ev.type) || !isDeadlineType(ev.type)));
   if(deadline){
     const key='D|'+deadline.title+'|'+fmt(deadline.date);
     if(!_shownTodayKeys.has(key)){ _shownTodayKeys.add(key); openDeadline(deadline); }
