@@ -852,6 +852,7 @@ function updateStatus(date){
     const info=getHolidayInfo(date);
     if(info){
       label=info.type;
+      if(info.name) label += ' — ' + info.name;
       if(info.cls==='special') statusCard.classList.add('holiday-special');
       else if(info.cls==='cutoff') statusCard.classList.add('holiday-cutoff');
       else statusCard.classList.add('holiday-regular');
