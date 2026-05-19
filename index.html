@@ -339,19 +339,22 @@
     from { opacity:0; transform:translateY(6px); }
     to   { opacity:1; transform:translateY(0); }
   }
+  .upcoming-nav-row{
+    display:none;
+    gap:8px;
+    margin-top:10px;
+    padding-left:4px;
+  }
+  .upcoming-nav-row.show{ display:flex; }
   .upcoming-nav{
-    position:absolute; bottom:8px;
-    width:26px; height:26px; border-radius:999px;
+    width:28px; height:28px; border-radius:999px;
     background:#161616; border:1px solid var(--border-strong);
-    color:#e5e5e5; font-size:.9rem; font-weight:700; line-height:1;
-    display:none; align-items:center; justify-content:center;
-    cursor:pointer; z-index:4;
+    color:#e5e5e5; font-size:.95rem; font-weight:700; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
     transition:transform .15s, background .15s, border-color .15s;
   }
-  .upcoming-card.has-multiple .upcoming-nav{ display:flex; }
   .upcoming-nav:hover{ transform:scale(1.1); background:#1f1f1f; border-color:#3a7a4a; }
-  .upcoming-nav.prev{ left:8px; }
-  .upcoming-nav.next{ left:40px; }
 
   @media (max-width:1100px){
     .main-grid { grid-template-columns:1fr; }
@@ -647,7 +650,6 @@
       </div>
 
       <div class="upcoming-card" id="upcomingCard">
-        <button class="upcoming-nav prev" id="upcomingPrev" aria-label="Previous">‹</button>
         <div class="upcoming-left">
           <div class="upcoming-tag" id="upcomingTag">Upcoming Event!</div>
           <div class="upcoming-title" id="upcomingTitle">Loading…</div>
@@ -660,6 +662,9 @@
           </div>
           <div class="upcoming-month" id="upcomingMonth">Month</div>
         </div>
+      </div>
+      <div class="upcoming-nav-row" id="upcomingNavRow">
+        <button class="upcoming-nav prev" id="upcomingPrev" aria-label="Previous">‹</button>
         <button class="upcoming-nav next" id="upcomingNext" aria-label="Next">›</button>
       </div>
     </div>
@@ -1142,7 +1147,7 @@ function renderUpcoming(){
     card.classList.remove('is-clickable');
     card.onclick=null;
   }
-  card.classList.toggle('has-multiple', upcomingEvents.length>1);
+  document.getElementById('upcomingNavRow').classList.toggle('show', upcomingEvents.length>1);
   card.classList.remove('upcoming-fade');
   void card.offsetWidth;
   card.classList.add('upcoming-fade');
